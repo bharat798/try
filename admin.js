@@ -9,8 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.replace('index.html');
         }
     });
-
-    // --- UTILITIES ---
+    
 
     // CHANGE: New centralized function to format dates as DD/MM/YYYY
     const formatDate = (dateInput) => {
@@ -345,3 +344,4 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('record-advance-form').addEventListener('submit', handleRecordAdvance);
     }
 });
+
