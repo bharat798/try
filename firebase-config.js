@@ -1,14 +1,14 @@
 // File Name: firebase-config.js
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB33CLb3Wyicw2axjCC8QnF0wo5qo0CuGs", 
-  authDomain: "employee-portal-app-41780.firebaseapp.com", 
-  projectId: "employee-portal-app-41780", 
-  storageBucket: "employee-portal-app-41780.firebasestorage.app", 
-  messagingSenderId: "823578602169", 
-  appId: "1:823578602169:web:0dc4dfadd7ac63f7f68968" 
+  apiKey: "AIzaSyDVrmQg4ltrhqsKh3NbThno86lygnvGF64",
+  authDomain: "trynew-6ec7a.firebaseapp.com",
+  projectId: "trynew-6ec7a",
+  storageBucket: "trynew-6ec7a.firebasestorage.app",
+  messagingSenderId: "733032019749",
+  appId: "1:733032019749:web:a14c934d4372e877368ccc",
+  measurementId: "G-3EK5SJB4VN"
 };
-
 // Initialize Firebase
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
