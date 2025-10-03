@@ -11,6 +11,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- UTILITIES ---
+
+    // CHANGE: New centralized function to format dates as DD/MM/YYYY
+    const formatDate = (dateInput) => {
+        if (!dateInput) return 'N/A';
+        // Convert Firebase Timestamp to JS Date if necessary
+        const dateObj = dateInput.toDate ? dateInput.toDate() : new Date(dateInput);
+        if (isNaN(dateObj.getTime())) return 'Invalid Date';
+
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const year = dateObj.getFullYear();
+
+        return `${day}/${month}/${year}`;
+    };
+
     const showMessage = (title, text, isSuccess = true) => {
         const modalContainer = document.getElementById('modal-container');
         if (!modalContainer) return;
@@ -105,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
-    // MODIFIED: Live attendance feed
     const listenForAttendance = () => {
         const attendanceList = document.getElementById('attendance-list');
         const todayStart = new Date();
@@ -131,13 +145,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadAttendanceHistory = async () => {
-        const dateFilter = document.getElementById('history-date-filter').value;
-        if (!dateFilter) return;
+        const dateFilterValue = document.getElementById('history-date-filter').value;
+        if (!dateFilterValue) return;
 
         const tableBody = document.getElementById('attendance-history-table-body');
         tableBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
         
-        const selectedDate = new Date(dateFilter);
+        const selectedDate = new Date(dateFilterValue);
         const start = new Date(selectedDate.setHours(0, 0, 0, 0));
         const end = new Date(selectedDate.setHours(23, 59, 59, 999));
         
@@ -149,14 +163,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         tableBody.innerHTML = '';
         if (snapshot.empty) {
-            tableBody.innerHTML = `<tr><td colspan="4">No records found for ${dateFilter}.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="4">No records found for ${formatDate(selectedDate)}.</td></tr>`;
         } else {
             snapshot.forEach(doc => {
                 const data = doc.data();
                 const time = data.timestamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 tableBody.innerHTML += `
                     <tr>
-                        <td>${data.timestamp.toDate().toLocaleDateString()}</td>
+                        <td>${formatDate(data.timestamp.toDate())}</td>
                         <td>${data.name}</td>
                         <td>${data.email}</td>
                         <td>${time}</td>
@@ -195,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
             advancesSnapshot.forEach(doc => {
                 const advance = doc.data();
                 historyBody.innerHTML += `<tr>
-                    <td>${advance.date.toDate().toLocaleDateString()}</td>
+                    <td>${formatDate(advance.date.toDate())}</td>
                     <td>₹${advance.amount}</td>
                 </tr>`;
             });
