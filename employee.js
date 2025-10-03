@@ -75,14 +75,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const doc = await db.collection('users').doc(uid).get();
         const registerBtn = document.getElementById('register-passkey-btn');
         if (doc.exists && doc.data().passkeyCredential) {
-            registerBtn.disabled = true;
-            registerBtn.innerHTML = '<i class="fas fa-check"></i> Passkey Registered';
+            // CHANGE: Instead of disabling the button, we now hide it completely.
+            registerBtn.style.display = 'none';
         }
     }
 
     async function registerPasskey() {
         const user = auth.currentUser;
         if (!user) return;
+        
+        const registerBtn = document.getElementById('register-passkey-btn');
+        registerBtn.disabled = true;
+        registerBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Registering...`;
 
         const rpId = window.location.hostname;
         const challenge = crypto.getRandomValues(new Uint8Array(32));
@@ -101,10 +105,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 passkeyCredential: { id: registrationCredential.id }
             }, { merge: true });
             alert('Passkey registered successfully!');
+            // CHANGE: After successful registration, hide the button.
             checkPasskeyRegistration(user.uid);
         } catch (error) {
             alert('Passkey registration failed. Your browser may not support it, or you cancelled the request.');
             console.error(error);
+            registerBtn.disabled = false;
+            registerBtn.innerHTML = `<i class="fas fa-fingerprint"></i> Register My Passkey`;
         }
     }
 
@@ -127,14 +134,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!attendanceQuery.empty) {
                 alert('You have already marked your attendance today.');
-                attendanceBtn.disabled = false;
-                attendanceBtn.innerHTML = '<i class="fas fa-calendar-check"></i> Mark My Attendance';
+                attendanceBtn.disabled = true; // Keep it disabled if already marked
+                attendanceBtn.innerHTML = '<i class="fas fa-check-double"></i> Attendance Marked Today';
                 return;
             }
 
             const userDoc = await db.collection('users').doc(user.uid).get();
             if (!userDoc.exists || !userDoc.data().passkeyCredential) {
-                return alert('You must register a passkey first.');
+                alert('You must register a passkey first.');
+                attendanceBtn.disabled = false;
+                attendanceBtn.innerHTML = '<i class="fas fa-calendar-check"></i> Mark My Attendance';
+                return;
             }
 
             const credentialId = userDoc.data().passkeyCredential.id;
