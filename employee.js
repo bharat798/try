@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const browser = window.SimpleWebAuthnBrowser;
 
-    // --- AUTH CHECK ---
+    
     auth.onAuthStateChanged(async user => {
         if (user) {
             // Check if it's the admin, if so, log them out of employee page
@@ -180,3 +180,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
