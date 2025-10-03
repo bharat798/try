@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const browser = window.SimpleWebAuthnBrowser;
 
-    
+    // --- AUTH CHECK ---
     auth.onAuthStateChanged(async user => {
         if (user) {
             // Check if it's the admin, if so, log them out of employee page
@@ -75,8 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const doc = await db.collection('users').doc(uid).get();
         const registerBtn = document.getElementById('register-passkey-btn');
         if (doc.exists && doc.data().passkeyCredential) {
-            // CHANGE: Instead of disabling the button, we now hide it completely.
             registerBtn.style.display = 'none';
+        } else {
+            // If no passkey, ensure the button is visible
+            registerBtn.style.display = 'inline-flex';
         }
     }
 
@@ -86,6 +88,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const registerBtn = document.getElementById('register-passkey-btn');
         registerBtn.disabled = true;
+        registerBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Checking...`;
+        
+        // NEW: Add a server-side check to prevent re-registration
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        if (userDoc.exists && userDoc.data().passkeyCredential) {
+            alert("A passkey is already registered for this account.");
+            checkPasskeyRegistration(user.uid); // This will hide the button
+            return;
+        }
+
         registerBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Registering...`;
 
         const rpId = window.location.hostname;
@@ -105,7 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 passkeyCredential: { id: registrationCredential.id }
             }, { merge: true });
             alert('Passkey registered successfully!');
-            // CHANGE: After successful registration, hide the button.
             checkPasskeyRegistration(user.uid);
         } catch (error) {
             alert('Passkey registration failed. Your browser may not support it, or you cancelled the request.');
@@ -180,4 +191,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
-
