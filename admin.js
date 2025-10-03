@@ -2,14 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- AUTHENTICATION CHECK ---
     auth.onAuthStateChanged(user => {
         if (user && user.email === "admin@company.com") {
-        
+            // User is admin, initialize the dashboard
             initializeAdminDashboard();
         } else {
             // User is not admin or not logged in, redirect to login
             window.location.replace('index.html');
         }
     });
-    
+
+    // --- UTILITIES ---
 
     // CHANGE: New centralized function to format dates as DD/MM/YYYY
     const formatDate = (dateInput) => {
@@ -344,5 +345,3 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('record-advance-form').addEventListener('submit', handleRecordAdvance);
     }
 });
-
-
