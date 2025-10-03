@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="background-color: var(--background-color);">
+
+    <section id="user-view" class="view active" style="display: none;">
+        <nav class="user-view-nav">
+            <h1><i class="fas fa-tachometer-alt"></i> My Dashboard</h1>
+            <button id="logout-btn" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </nav>
+        <div class="user-dashboard-container">
+            <div class="user-welcome-card">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-welcome-text">
+                    <h2>Welcome Back, <span id="user-name-display">Employee!</span></h2>
+                    <p>Logged in as: <strong id="user-email-display">N/A</strong></p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body" style="flex-direction: row; justify-content: space-around; gap: 20px;">
+                    <button id="register-passkey-btn" class="btn btn-primary"><i class="fas fa-fingerprint"></i> Register My Passkey</button>
+                    <button id="mark-attendance-btn" class="btn btn-success" style="background-color: var(--success-color);"><i class="fas fa-calendar-check"></i> Mark My Attendance</button>
+                </div>
+            </div>
+
+            <div class="user-details-grid">
+                <div class="detail-card">
+                    <h4><i class="fas fa-address-card"></i> Personal Information</h4>
+                    <div class="info-item">
+                        <i class="fas fa-phone-alt"></i>
+                        <div>
+                            <span>Phone Number</span>
+                            <strong id="user-phone-display">N/A</strong>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-id-card"></i>
+                        <div>
+                            <span>Aadhar Number</span>
+                            <strong id="user-aadhar-display">N/A</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-card salary-card">
+                    <h4><i class="fas fa-wallet"></i> Salary Details (This Month)</h4>
+                    <div class="info-item">
+                        <i class="fas fa-sack-dollar"></i>
+                        <div>
+                            <span>Base Salary</span>
+                            <strong id="user-base-salary-display">N/A</strong>
+                        </div>
+                    </div>
+                    <div class="info-item advances-item">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        <div>
+                            <span>Advances Taken</span>
+                            <strong id="user-advances-display">N/A</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@simplewebauthn/browser/dist/bundle/index.umd.min.js"></script>
+    
+    <script src="firebase-config.js"></script>
+    <script src="employee.js"></script>
+</body>
+</html>
