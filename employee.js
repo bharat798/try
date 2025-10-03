@@ -4,68 +4,87 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- AUTH CHECK ---
     auth.onAuthStateChanged(async user => {
         if (user) {
-            // Check if it's the admin, if so, log them out of employee page
             if (user.email === "admin@company.com") {
-                auth.signOut();
+                auth.signOut(); 
                 return;
             }
-            // User is a logged-in employee, show dashboard
-            document.getElementById('user-view').style.display = 'block';
             await loadEmployeeData(user);
+            initializeNavigation();
         } else {
-            // No user, redirect to login
             window.location.replace('index.html');
         }
     });
 
+    // --- NAVIGATION LOGIC ---
+    function initializeNavigation() {
+        const navLinks = document.querySelectorAll('.nav-link');
+        const contentViews = document.querySelectorAll('.content-view');
+        const pageTitle = document.getElementById('page-title');
+        const viewTitles = {
+            details: 'Employee Details',
+            attendance: 'Attendance System'
+        };
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const view = link.getAttribute('data-view');
+                pageTitle.textContent = viewTitles[view];
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                contentViews.forEach(v => v.classList.remove('active'));
+                document.getElementById(`${view}-view`).classList.add('active');
+            });
+        });
+    }
+
     // --- DATA LOADING ---
     const loadEmployeeData = async (user) => {
-        const userEmailDisplay = document.getElementById('user-email-display');
-        userEmailDisplay.textContent = user.email;
-
         try {
-            // Fetch employee details from 'employees' collection
             const employeeDoc = await db.collection('employees').doc(user.uid).get();
             if (!employeeDoc.exists) {
-                alert("Your employee data could not be found. Please contact an admin.");
+                alert("Your employee data could not be found.");
                 return auth.signOut();
             }
             const employeeData = employeeDoc.data();
 
-            // Populate dashboard
-            document.getElementById('user-name-display').textContent = employeeData.name;
+            // Set Name and Initial
+            document.getElementById('sidebar-user-name').textContent = employeeData.name;
+            const initial = employeeData.name ? employeeData.name.charAt(0).toUpperCase() : '?';
+            document.getElementById('sidebar-initials-text').textContent = initial;
+
+            // Set other details
+            document.getElementById('user-id-display').textContent = user.uid;
             document.getElementById('user-phone-display').textContent = employeeData.phone;
             document.getElementById('user-aadhar-display').textContent = employeeData.aadhar;
             document.getElementById('user-base-salary-display').textContent = `₹${employeeData.baseSalary.toLocaleString()}`;
 
-            // Fetch and calculate advances for the current month
             const today = new Date();
             const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            const advancesSnapshot = await db.collection('employees').doc(user.uid).collection('advances')
-                .where('date', '>=', startOfMonth)
-                .get();
+            const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
 
+            const advancesSnapshot = await db.collection('employees').doc(user.uid).collection('advances').where('date', '>=', startOfMonth).get();
             let totalAdvances = 0;
-            advancesSnapshot.forEach(doc => {
-                totalAdvances += doc.data().amount;
-            });
+            advancesSnapshot.forEach(doc => { totalAdvances += doc.data().amount; });
             document.getElementById('user-advances-display').textContent = `- ₹${totalAdvances.toLocaleString()}`;
-            
-            checkPasskeyRegistration(user.uid);
 
+            const attendanceSnapshot = await db.collection('attendance').where('userId', '==', user.uid).where('timestamp', '>=', startOfMonth).where('timestamp', '<=', endOfMonth).get();
+            document.getElementById('days-present-display').textContent = attendanceSnapshot.size;
+            document.getElementById('days-absent-display').textContent = 0;
+
+            checkPasskeyRegistration(user.uid);
         } catch (error) {
             console.error("Error loading employee data:", error);
             alert("An error occurred while loading your data.");
         }
     };
-    
+
     // --- EVENT LISTENERS ---
     document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
     document.getElementById('register-passkey-btn').addEventListener('click', registerPasskey);
     document.getElementById('mark-attendance-btn').addEventListener('click', markAttendance);
 
 
-    // --- PASSKEY & ATTENDANCE LOGIC ---
+    // --- PASSKEY & ATTENDANCE LOGIC (No changes here) ---
     function bufferToBase64URL(buffer) {
         const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
         return base64.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
@@ -77,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (doc.exists && doc.data().passkeyCredential) {
             registerBtn.style.display = 'none';
         } else {
-            // If no passkey, ensure the button is visible
             registerBtn.style.display = 'inline-flex';
         }
     }
@@ -90,19 +108,16 @@ document.addEventListener('DOMContentLoaded', () => {
         registerBtn.disabled = true;
         registerBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Checking...`;
         
-        // NEW: Add a server-side check to prevent re-registration
         const userDoc = await db.collection('users').doc(user.uid).get();
         if (userDoc.exists && userDoc.data().passkeyCredential) {
             alert("A passkey is already registered for this account.");
-            checkPasskeyRegistration(user.uid); // This will hide the button
+            checkPasskeyRegistration(user.uid);
             return;
         }
 
         registerBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Registering...`;
-
         const rpId = window.location.hostname;
         const challenge = crypto.getRandomValues(new Uint8Array(32));
-
         const registrationOptions = {
             rp: { name: 'Employee Portal', id: rpId },
             user: { id: bufferToBase64URL(new TextEncoder().encode(user.uid)), name: user.email, displayName: user.email },
@@ -119,10 +134,10 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Passkey registered successfully!');
             checkPasskeyRegistration(user.uid);
         } catch (error) {
-            alert('Passkey registration failed. Your browser may not support it, or you cancelled the request.');
+            alert('Passkey registration failed. Please try again.');
             console.error(error);
             registerBtn.disabled = false;
-            registerBtn.innerHTML = `<i class="fas fa-fingerprint"></i> Register My Passkey`;
+            registerBtn.innerHTML = `<i class="fas fa-id-card"></i> Register Fingerprint/Face ID`;
         }
     }
 
@@ -132,20 +147,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const attendanceBtn = document.getElementById('mark-attendance-btn');
         attendanceBtn.disabled = true;
-        attendanceBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+        attendanceBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Verifying...`;
 
         try {
-            // Check if already marked today
             const todayStart = new Date();
             todayStart.setHours(0, 0, 0, 0);
-            const attendanceQuery = await db.collection('attendance')
-                .where('userId', '==', user.uid)
-                .where('timestamp', '>=', todayStart)
-                .get();
+            const attendanceQuery = await db.collection('attendance').where('userId', '==', user.uid).where('timestamp', '>=', todayStart).get();
 
             if (!attendanceQuery.empty) {
                 alert('You have already marked your attendance today.');
-                attendanceBtn.disabled = true; // Keep it disabled if already marked
+                attendanceBtn.disabled = true;
                 attendanceBtn.innerHTML = '<i class="fas fa-check-double"></i> Attendance Marked Today';
                 return;
             }
@@ -154,13 +165,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!userDoc.exists || !userDoc.data().passkeyCredential) {
                 alert('You must register a passkey first.');
                 attendanceBtn.disabled = false;
-                attendanceBtn.innerHTML = '<i class="fas fa-calendar-check"></i> Mark My Attendance';
+                attendanceBtn.innerHTML = `<i class="fas fa-calendar-check"></i> Mark Today's Attendance`;
                 return;
             }
 
             const credentialId = userDoc.data().passkeyCredential.id;
             const challenge = crypto.getRandomValues(new Uint8Array(32));
-
             const authenticationOptions = {
                 challenge: bufferToBase64URL(challenge),
                 allowCredentials: [{ id: credentialId, type: 'public-key' }],
@@ -169,7 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             await browser.startAuthentication(authenticationOptions);
             
-            // Authentication successful, now get full name from 'employees' collection
             const employeeDoc = await db.collection('employees').doc(user.uid).get();
             const userName = employeeDoc.exists ? employeeDoc.data().name : user.email;
 
@@ -182,12 +191,15 @@ document.addEventListener('DOMContentLoaded', () => {
             
             alert('Attendance marked successfully!');
             attendanceBtn.innerHTML = '<i class="fas fa-check-double"></i> Attendance Marked!';
+            loadEmployeeData(user);
 
         } catch (error) {
             alert('Verification failed. Please try again.');
             console.error(error);
             attendanceBtn.disabled = false;
-            attendanceBtn.innerHTML = '<i class="fas fa-calendar-check"></i> Mark My Attendance';
+            attendanceBtn.innerHTML = `<i class="fas fa-calendar-check"></i> Mark Today's Attendance`;
         }
     }
 });
+
+
