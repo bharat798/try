@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Portal Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Additional styles for centering the login card */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color), #6D6DF6);
+        }
+        .view { max-width: 420px; }
+    </style>
+</head>
+<body>
+
+    <main id="login-view" class="view active">
+        <div class="card">
+            <div id="login-form-view">
+                <div class="card-header">
+                    <i class="fas fa-users-cog logo"></i>
+                    <h1>Employee Portal</h1>
+                    <p>Please sign in to continue.</p>
+                </div>
+                <div class="card-body">
+                    <div class="input-group">
+                        <input type="email" id="login-email" required placeholder=" ">
+                        <label for="login-email">Email Address</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="login-password" required placeholder=" ">
+                        <label for="login-password">Password</label>
+                    </div>
+                    <button id="login-btn" class="btn btn-primary" style="width:100%"><i class="fas fa-sign-in-alt"></i> Login</button>
+                    <p style="text-align: center; margin-top: 1rem;">
+                        <a href="#" id="show-admin-reg-link">Setup First Admin Account</a>
+                    </p>
+                </div>
+            </div>
+
+            <div id="admin-reg-view" style="display: none;">
+                <div class="card-header">
+                    <i class="fas fa-user-shield logo"></i>
+                    <h1>Admin Setup</h1>
+                    <p>Create the primary admin account.</p>
+                </div>
+                 <div class="card-body">
+                    <p style="text-align: center; color: var(--light-text-color);">This is a one-time setup for <strong>admin@company.com</strong>.</p>
+                    <div class="input-group">
+                        <input type="password" id="admin-reg-password" required placeholder=" ">
+                        <label for="admin-reg-password">Choose a Secure Password</label>
+                    </div>
+                    <button id="admin-reg-btn" class="btn btn-primary" style="width:100%">Create Admin</button>
+                    <p style="text-align: center; margin-top: 1rem;">
+                        <a href="#" id="show-admin-login-link">Back to Login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <script src="firebase-config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+            const ADMIN_EMAIL = "admin@company.com";
+
+            const loginView = document.getElementById('login-form-view');
+            const adminRegView = document.getElementById('admin-reg-view');
+            const showAdminRegLink = document.getElementById('show-admin-reg-link');
+            const showAdminLoginLink = document.getElementById('show-admin-login-link');
+
+            showAdminRegLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginView.style.display = 'none';
+                adminRegView.style.display = 'block';
+            });
+
+            showAdminLoginLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                adminRegView.style.display = 'none';
+                loginView.style.display = 'block';
+            });
+
+            // One-time Admin Registration
+            document.getElementById('admin-reg-btn').addEventListener('click', async () => {
+                const password = document.getElementById('admin-reg-password').value;
+                if (password.length < 6) {
+                    return alert('Password should be at least 6 characters.');
+                }
+                try {
+                    const userCredential = await auth.createUserWithEmailAndPassword(ADMIN_EMAIL, password);
+                    await db.collection('users').doc(userCredential.user.uid).set({
+                        name: 'Admin',
+                        email: ADMIN_EMAIL
+                    });
+                    alert('Admin account created! You can now log in.');
+                    showAdminLoginLink.click();
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            });
+
+            // Login Logic
+            document.getElementById('login-btn').addEventListener('click', () => {
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                auth.signInWithEmailAndPassword(email, password)
+                    .then(userCredential => {
+                        if (userCredential.user.email === ADMIN_EMAIL) {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = 'employee.html';
+                        }
+                    })
+                    .catch(error => alert('Login Failed: ' + error.message));
+            });
+
+            // Redirect if already logged in
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    if (user.email === ADMIN_EMAIL) {
+                        window.location.replace('admin.html');
+                    } else {
+                        window.location.replace('employee.html');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

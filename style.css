@@ -1,0 +1,2688 @@
+:root {
+    --primary-color: #5E5DF0;
+    --secondary-color: #4A4A4A;
+    --background-color: #F7F7F7;
+    --card-bg-color: #FFFFFF;
+    --text-color: #333333;
+    --light-text-color: #777777;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --border-color: #EAEAEA;
+    --shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.2);
+    --font-family: 'Inter', sans-serif;
+
+    /* New Dashboard Colors */
+    --sidebar-bg: #2C3E50; /* Darker blue/grey for sidebar */
+    --sidebar-link-color: #ECF0F1; /* Light text for sidebar links */
+    --sidebar-link-hover: #34495E; /* Slightly lighter on hover */
+    --sidebar-active-bg: #5E5DF0; /* Primary color for active link */
+    --header-bg: #FFFFFF;
+    --stat-card-bg: #FFFFFF;
+    --stat-icon-blue: #007bff;
+    --stat-icon-green: #28a745;
+    --stat-icon-red: #dc3545;
+    --stat-icon-purple: #6f42c1;
+}
+
+/* Base Styles */
+body {
+    font-family: var(--font-family);
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-color);
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+input, button, select, textarea {
+    font-family: var(--font-family);
+    font-size: 16px;
+}
+
+/* Utility Classes */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.card {
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.card-header .logo {
+    font-size: 4em;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.card-header h1 {
+    margin-bottom: 5px;
+    color: var(--primary-color);
+}
+
+.card-header p {
+    color: var(--light-text-color);
+}
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 16px;
+    transition: all 0.2s ease-in-out;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid transparent;
+}
+
+.btn i {
+    margin-right: 8px;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+}
+
+.btn-primary:hover {
+    background-color: #4C4CD9; /* Slightly darker primary */
+    box-shadow: 0 5px 15px rgba(94, 93, 240, 0.3);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: #FFFFFF;
+}
+
+.btn-secondary:hover {
+    background-color: #5A5A5A;
+    box-shadow: 0 5px 15px rgba(74, 74, 74, 0.3);
+}
+
+.btn-outline {
+    background-color: rgb(255, 27, 27);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.btn-outline:hover {
+    background-color:rgb(52, 186, 34); 
+    color: #FFFFFF;
+   
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: #FFFFFF;
+}
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-small {
+    padding: 8px 15px;
+    font-size: 14px;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    border-color: var(--primary-color);
+}
+
+.input-group label {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    color: var(--light-text-color);
+    font-size: 16px;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    background-color: var(--background-color); /* To cover input border when focused */
+    padding: 0 4px; /* Space for label */
+}
+
+.input-group input:focus + label,
+.input-group input:not(:placeholder-shown) + label,
+.input-group select:focus + label,
+.input-group select:valid + label { /* For select with a default value */
+    top: -10px;
+    left: 10px;
+    font-size: 12px;
+    color: var(--primary-color);
+}
+
+/* Specific for date input, as :not(:placeholder-shown) might not work universally */
+.input-group input[type="date"] + label {
+    top: -10px;
+    left: 10px;
+    font-size: 12px;
+    color: var(--primary-color);
+    background-color: var(--background-color);
+    padding: 0 4px;
+}
+
+/* Modal Styles */
+#modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#modal-container.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal {
+    background-color: var(--card-bg-color);
+    padding: 0; /* Remove padding for new structure */
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    max-width: 500px;
+    width: 90%;
+    transform: translateY(-20px);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    display: none; /* Hidden by default */
+}
+
+#modal-container.show .modal {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* NEW: Modal Structure */
+.modal-header {
+    padding: 20px 30px;
+    border-bottom: 1px solid var(--border-color);
+}
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+    color: var(--primary-color);
+}
+.modal-header h2 i {
+    margin-right: 10px;
+}
+.modal-body {
+    padding: 30px;
+}
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 20px 30px;
+    background-color: #f9f9f9;
+    border-top: 1px solid var(--border-color);
+    border-radius: 0 0 10px 10px;
+}
+/* Re-apply padding for old modals without new structure */
+#enroll-modal, #employee-details-modal, #message-modal {
+    padding: 30px;
+}
+#message-modal .modal-actions {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+
+/* Message Modal Specifics */
+#message-modal #message-icon {
+    font-size: 4em;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+#message-modal #message-icon .fa-check-circle {
+    color: var(--success-color);
+}
+
+#message-modal #message-icon .fa-times-circle {
+    color: var(--danger-color);
+}
+
+#message-modal #message-title {
+    text-align: center;
+    font-size: 1.8em;
+    margin-bottom: 10px;
+}
+
+#message-modal #message-text {
+    text-align: center;
+    color: var(--light-text-color);
+    margin-bottom: 20px;
+}
+
+
+/* --- Landing Page (index.html) Specific Styles --- */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--primary-color), #6D6DF6);
+}
+
+.view {
+    display: none;
+    width: 100%;
+    max-width: 1000px; /* Increased max-width for dashboard */
+    padding: 20px;
+    box-sizing: border-box; /* Ensures padding is included in width */
+}
+
+.view.active {
+    display: block;
+}
+
+#login-view {
+    max-width: 400px; /* Keep login view smaller */
+}
+
+/* --- NEW Employee Dashboard View (user-view) --- */
+#user-view {
+    background-color: var(--background-color);
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+}
+
+.user-view-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background-color: var(--card-bg-color);
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 12px 12px 0 0;
+}
+
+.user-view-nav h1 {
+    font-size: 1.5em;
+    color: var(--primary-color);
+    margin: 0;
+}
+.user-view-nav h1 i {
+    margin-right: 10px;
+}
+
+.user-dashboard-container {
+    padding: 25px;
+}
+
+.user-welcome-card {
+    display: flex;
+    align-items: center;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-shadow: var(--shadow);
+}
+
+.user-avatar {
+    font-size: 3em;
+    margin-right: 25px;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+}
+
+.user-welcome-text h2 {
+    color: white;
+    margin: 0 0 5px 0;
+    font-size: 1.8em;
+}
+
+.user-welcome-text p {
+    margin: 0;
+    opacity: 0.9;
+}
+.user-welcome-text strong {
+    font-weight: 500;
+}
+
+.user-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.detail-card {
+    background-color: var(--card-bg-color);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+.detail-card h4 {
+    font-size: 1.2em;
+    color: var(--text-color);
+    margin: 0 0 20px 0;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+}
+.detail-card h4 i {
+    margin-right: 10px;
+    color: var(--primary-color);
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.info-item:last-child {
+    margin-bottom: 0;
+}
+
+.info-item i {
+    font-size: 1.5em;
+    color: var(--light-text-color);
+    width: 30px;
+    text-align: center;
+}
+
+.info-item .icon-present { color: var(--success-color); }
+.info-item .icon-absent { color: var(--danger-color); }
+
+.info-item div span {
+    display: block;
+    color: var(--light-text-color);
+    font-size: 0.9em;
+    margin-bottom: 2px;
+}
+
+.info-item div strong {
+    font-size: 1.2em;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+/* NEW: Style for employee advances */
+.info-item.advances-item strong {
+    color: var(--danger-color);
+    font-weight: 700;
+}
+
+.detail-card.salary-card .calculated-salary {
+    background-color: #f0efff;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+.detail-card.salary-card .calculated-salary strong {
+    color: var(--primary-color);
+    font-size: 1.4em;
+    font-weight: 700;
+}
+
+
+/* --- Admin Login Page (admin_login.html) Specific Styles --- */
+.admin-login-body {
+    background: linear-gradient(135deg, #1abc9c, #16a085); /* Green gradient */
+}
+
+.admin-login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.admin-login-card {
+    background-color: var(--card-bg-color);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+}
+
+.admin-login-header .admin-logo {
+    font-size: 3.5em;
+    color: #16a085; /* Matching gradient color */
+    margin-bottom: 10px;
+}
+
+.admin-login-header h1 {
+    color: #16a085;
+    margin-bottom: 5px;
+}
+
+.admin-login-header p {
+    color: var(--light-text-color);
+    margin-bottom: 30px;
+}
+
+.admin-login-form .input-group {
+    margin-bottom: 30px;
+}
+
+.admin-login-form .btn {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+
+/* --- Dashboard Page (dashboard.html) Specific Styles --- */
+.dashboard-body {
+    background-color: var(--background-color);
+    display: block; /* Override default flex from index.html body */
+}
+
+/* NEW: Dashboard Wrapper for Layout */
+.dashboard-wrapper {
+    display: flex;
+    min-height: 100vh;
+    transition: margin-left 0.3s ease; /* Smooth transition for sidebar push effect */
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    flex-shrink: 0; /* Prevents sidebar from shrinking */
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-link-color);
+    padding-top: 20px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, width 0.3s ease; /* Smooth transition for sidebar itself */
+    position: relative; /* For z-index context on mobile */
+    z-index: 999; /* Ensure sidebar is above main content on mobile */
+}
+
+.sidebar-header {
+    text-align: center;
+    padding: 20px;
+    color: #FFFFFF;
+    margin-bottom: 20px;
+}
+
+.sidebar-header .sidebar-logo {
+    font-size: 3em;
+    margin-bottom: 10px;
+    color: var(--primary-color); /* Use primary color for logo in dark sidebar */
+}
+
+.sidebar-header h2 {
+    font-size: 1.5em;
+    color: #FFFFFF;
+}
+
+.sidebar-nav ul li a {
+    display: flex;
+    align-items: center;
+    padding: 15px 25px;
+    color: var(--sidebar-link-color);
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-nav ul li a:hover {
+    background-color: var(--sidebar-link-hover);
+    color: #FFFFFF;
+    text-decoration: none; /* Remove underline on hover */
+}
+
+.sidebar-nav ul li a.active {
+    background-color: var(--sidebar-active-bg);
+    color: #FFFFFF;
+    border-left: 5px solid var(--primary-color);
+    padding-left: 20px; /* Adjust padding due to border */
+}
+
+.sidebar-nav ul li a i {
+    margin-right: 15px;
+    font-size: 1.2em;
+}
+
+/* Main Content Area */
+.main-content {
+    flex-grow: 1; /* Allows main content to take remaining space */
+    padding: 20px;
+    background-color: var(--background-color);
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    background-color: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+.dashboard-header h1 {
+    margin: 0;
+    font-size: 1.8em;
+    color: var(--primary-color);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+}
+
+/* Menu Toggle Button - initially hidden on larger screens, shown on smaller screens */
+.menu-toggle-btn {
+    display: none; /* Hidden by default on desktop */
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+    margin-right: 15px;
+}
+
+.menu-toggle-btn:hover {
+    background-color: var(--border-color);
+}
+
+
+/* Content Sections */
+.content-section {
+    display: none;
+    padding: 20px 0; /* Add some vertical padding */
+}
+
+.content-section.active {
+    display: block;
+}
+
+.content-section h2 {
+    font-size: 2em;
+    margin-bottom: 25px;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background-color: var(--stat-card-bg);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 25px;
+    display: flex;
+    /* YEH BADLAV KIYA GAYA HAI */
+    flex-direction: column; /* Icon aur text ko upar-neeche karega */
+    align-items: flex-start; /* Sab kuch left se start hoga */
+    gap: 10px; /* Icon aur text ke beech thodi jagah */
+}
+
+.stat-card .stat-icon {
+    font-size: 2.5em;
+    color: var(--stat-icon-blue);
+}
+.stat-card:nth-child(2) .stat-icon { color: var(--stat-icon-green); }
+.stat-card:nth-child(3) .stat-icon { color: var(--stat-icon-red); }
+.stat-card:nth-child(4) .stat-icon { color: var(--stat-icon-purple); }
+
+
+.stat-card .stat-info h3 {
+    font-size: 1em;
+    color: var(--light-text-color);
+    margin-bottom: 5px;
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+.stat-card .stat-info p {
+    font-size: 2.2em;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+}
+
+/* Dashboard Actions */
+.dashboard-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+}
+
+.dashboard-actions .btn {
+    flex: 1; /* Allow buttons to grow */
+    min-width: 180px; /* Minimum width for buttons */
+}
+
+/* Recent Activity */
+.recent-activity-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.recent-activity-card li {
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border-color);
+    color: var(--light-text-color);
+    font-size: 0.95em;
+}
+
+.recent-activity-card li:last-child {
+    border-bottom: none;
+}
+
+.recent-activity-card li strong {
+    color: var(--text-color);
+}
+
+/* Table Styles */
+.table-responsive {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.data-table, .simple-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    overflow: hidden; /* Ensures rounded corners on table */
+    box-shadow: var(--shadow);
+    font-size: 0.95em;
+}
+
+.data-table th, .simple-table th {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+    padding: 15px;
+    text-align: left;
+    font-weight: 500;
+}
+
+.data-table td, .simple-table td {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td, .simple-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+    background-color: #F0F0F0;
+}
+
+.actions-cell {
+    white-space: nowrap; /* Prevent buttons from wrapping */
+}
+
+.actions-cell .btn {
+    margin-right: 5px; /* Space between buttons */
+}
+
+/* Attendance Specific */
+.attendance-date-selection {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    background-color: var(--card-bg-color);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    flex-wrap: wrap;
+}
+
+.attendance-date-selection label {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.attendance-date-selection .form-control {
+    flex-grow: 1;
+    max-width: 200px;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.mark-all-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-left: auto; /* Push to the right */
+}
+
+.mark-all-controls strong {
+    color: var(--primary-color);
+}
+
+.attendance-table .attendance-actions {
+    display: flex;
+    gap: 5px;
+}
+.attendance-table .btn-mark-present,
+.attendance-table .btn-mark-absent {
+    padding: 8px 12px;
+    font-size: 0.85em;
+    border-radius: 4px;
+}
+.attendance-table .btn-mark-present {
+    background-color: var(--success-color);
+    color: white;
+}
+.attendance-table .btn-mark-present:hover:not(:disabled) {
+    background-color: #218838;
+}
+.attendance-table .btn-mark-absent {
+    background-color: var(--danger-color);
+    color: white;
+}
+.attendance-table .btn-mark-absent:hover:not(:disabled) {
+    background-color: #c82333;
+}
+.attendance-table .btn-mark-present:disabled,
+.attendance-table .btn-mark-absent:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: 500;
+    font-size: 0.85em;
+    color: white;
+    text-transform: uppercase;
+}
+.status-present { background-color: var(--success-color); }
+.status-absent { background-color: var(--danger-color); }
+.status-not-marked { background-color: var(--secondary-color); }
+
+
+.employee-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* CHANGED FROM 2 to 3 COLUMNS */
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.employee-detail-grid div {
+    background-color: var(--background-color);
+    padding: 10px 15px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+}
+.employee-detail-grid strong {
+    color: var(--primary-color);
+    margin-right: 5px;
+}
+
+.simple-table {
+    box-shadow: none; /* No shadow for internal table */
+    border: 1px solid var(--border-color);
+}
+.simple-table th {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-size: 0.9em;
+}
+.simple-table td {
+    font-size: 0.9em;
+}
+
+.small-table {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Settings Page */
+.settings-card {
+    margin-bottom: 25px;
+}
+.settings-card h3 {
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    font-size: 1.5em;
+}
+.settings-card .input-group {
+    margin-bottom: 20px;
+}
+.settings-card .btn {
+    width: auto; /* Reset width for settings buttons */
+    padding: 10px 20px;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    /* Base Styles */
+    body:not(.dashboard-body) { /* Only for index.html and admin_login.html */
+        padding: 20px;
+    }
+    .card, .admin-login-card, .modal {
+        padding: 25px;
+    }
+    .btn {
+        padding: 10px 20px;
+        font-size: 15px;
+    }
+    .input-group label {
+        font-size: 15px;
+    }
+    .input-group input:focus + label,
+    .input-group input:not(:placeholder-shown) + label,
+    .input-group select:focus + label,
+    .input-group select:valid + label,
+    .input-group input[type="date"] + label {
+        font-size: 11px;
+    }
+
+    /* Index.html user view specific */
+    .user-welcome-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    .user-avatar {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    .user-welcome-text h2 {
+        font-size: 1.5em;
+    }
+
+    /* Dashboard.html specific */
+    .dashboard-wrapper {
+        flex-direction: row; /* Keep row for main flex behavior */
+        margin-left: 0; /* No initial margin */
+    }
+
+    .sidebar {
+        position: fixed; /* Fixed position for overlay */
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 250px; /* Explicit width */
+        transform: translateX(-100%); /* Hide sidebar off-screen by default */
+        transition: transform 0.3s ease;
+        z-index: 1000; /* Ensure it's above other content */
+        box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+    }
+
+    .dashboard-wrapper.sidebar-open .sidebar {
+        transform: translateX(0); /* Show sidebar when sidebar-open class is active */
+    }
+
+    .main-content {
+        width: 100%; /* Take full width when sidebar is hidden */
+        margin-left: 0; /* Reset margin */
+        padding-top: 70px; /* Add padding for fixed header */
+    }
+
+    /* Optional: Overlay effect when sidebar is open */
+    .dashboard-wrapper.sidebar-open .main-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: 900;
+        pointer-events: auto; /* Allow clicks on overlay to close sidebar */
+    }
+
+    .dashboard-header {
+        position: fixed; /* Make header fixed at the top */
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: var(--header-bg);
+        z-index: 950; /* Above main content, below sidebar */
+        border-radius: 0; /* No border-radius for fixed header */
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        padding: 10px 20px;
+    }
+
+    .menu-toggle-btn {
+        display: block; /* Show the menu button on smaller screens */
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.5em;
+        flex-grow: 1; /* Allow title to take space */
+        text-align: center;
+        margin-right: 15px; /* Space from logout button */
+    }
+
+    .user-profile .btn {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr; /* Stack stats vertically */
+    }
+    .stat-card {
+        padding: 20px;
+    }
+    .stat-card p {
+        font-size: 28px;
+    }
+    .attendance-date-selection, #history-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .attendance-date-selection .form-control {
+        max-width: 100%;
+    }
+    .mark-all-controls {
+        margin-left: 0; /* Reset margin-left for column layout */
+        width: 100%;
+        justify-content: center;
+    }
+    .dashboard-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .dashboard-actions .btn {
+        width: 100%;
+    }
+    .modal {
+        padding: 25px;
+    }
+    .employee-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .card, .admin-login-card {
+        padding: 20px;
+    }
+    .modal {
+        padding: 20px;
+    }
+    .modal-actions {
+        flex-direction: column;
+    }
+    .modal-actions .btn {
+        width: 100%;
+    }
+    .dashboard-header h1 {
+        font-size: 1.2em;
+    }
+    .user-view-nav {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+    }
+}
+
+/* Salary Advance Section */
+.employee-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.employee-list li {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.employee-list li:last-child {
+    border-bottom: none;
+}
+
+.employee-list li:hover {
+    background-color: #f8f9fa;
+}
+
+.employee-list li .employee-name {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.employee-list li .employee-id {
+    font-size: 0.9em;
+    color: var(--light-text-color);
+}
+
+/* NEW/MODIFIED: Advance Details Modal Layout */
+#advance-details-modal {
+    max-width: 800px; /* Wider modal for better layout */
+}
+.advance-modal-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 30px;
+}
+.advance-form-section h3,
+.advance-history-section h3 {
+    font-size: 1.2em;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.btn-full-width {
+    width: 100%;
+}
+.salary-summary-card {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 25px;
+    border: 1px solid var(--border-color);
+}
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 0.95em;
+}
+.summary-item span {
+    color: var(--light-text-color);
+}
+.summary-item strong {
+    font-weight: 500;
+    color: var(--text-color);
+}
+.summary-item .danger-text {
+    color: var(--danger-color);
+    font-weight: 700;
+}
+.summary-item.payable {
+    font-size: 1.2em;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+.summary-item.payable strong {
+    font-weight: 700;
+    color: var(--success-color);
+}
+.advance-history-section .table-responsive {
+    max-height: 350px;
+    overflow-y: auto;
+}
+/* Responsive Adjustments for Advance Modal */
+@media (max-width: 768px) {
+    .advance-modal-layout {
+        grid-template-columns: 1fr;
+    }
+    #advance-details-modal {
+        max-width: 500px;
+    }
+}
+
+
+
+
+/* --- NEW STYLES (ADD TO END OF FILE) --- */
+
+/* Background blur effect */
+.body-blur > *:not(#modal-container) {
+    filter: blur(5px);
+    transition: filter 0.3s ease-out;
+}
+.dashboard-wrapper {
+    transition: filter 0.3s ease-out; /* Add transition for smoothness */
+}
+
+/* Styles for the new employee advance history table */
+.simple-user-table {
+    box-shadow: none;
+    border: 1px solid var(--border-color);
+}
+.simple-user-table th {
+    font-size: 0.9em;
+    background-color: #f8f9fa;
+    color: var(--text-color);
+}
+.simple-user-table tbody tr:hover {
+    background-color: #F0F0F0;
+}
+
+/* Redesigned Advance Details Modal Layout */
+#advance-details-modal {
+    max-width: 850px; /* Wider modal for new layout */
+}
+.advance-modal-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 30px;
+}
+.advance-modal-column > div:not(:last-child) {
+    margin-bottom: 30px; /* Space between form and history on the left */
+}
+.advance-form-section h3,
+.advance-history-section h3,
+.salary-summary-card h3 {
+    font-size: 1.2em;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.btn-full-width {
+    width: 100%;
+}
+.salary-summary-card {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    height: 100%; /* Make summary card fill the column height */
+}
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.summary-item .danger-text {
+    color: var(--danger-color);
+    font-weight: 700;
+}
+.summary-item.payable {
+    font-size: 1.2em;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+.summary-item.payable strong {
+    font-weight: 700;
+    color: var(--success-color);
+}
+.advance-history-section .table-responsive {
+    max-height: 240px; /* Set max height for scroll */
+    overflow-y: auto;
+}
+
+/* Responsive Adjustments for the new Advance Modal */
+@media (max-width: 800px) {
+    .advance-modal-layout {
+        grid-template-columns: 1fr; /* Stack columns on smaller screens */
+    }
+    #advance-details-modal {
+        max-width: 500px;
+    }
+    .salary-summary-card {
+        margin-top: 30px; /* Add space when stacked */
+    }
+}
+
+
+
+
+
+/* --- NEW STYLES FOR REPORTS SECTION --- */
+
+.report-controls {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.control-group label {
+    font-size: 0.9em;
+    font-weight: 500;
+    color: var(--light-text-color);
+}
+
+.control-group .form-control {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    min-width: 150px;
+}
+
+.report-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.summary-card {
+    background-color: var(--card-bg-color);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    border-left: 5px solid var(--primary-color);
+}
+.summary-card:last-child {
+    border-left-color: var(--danger-color);
+}
+
+.summary-card h4 {
+    margin: 0 0 10px 0;
+    font-size: 1.1em;
+    color: var(--text-color);
+}
+
+.summary-card p {
+    margin: 0;
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+.summary-card:last-child p {
+    color: var(--danger-color);
+}
+
+.report-table .btn-success {
+    background-color: var(--success-color);
+    color: white;
+}
+.report-table .btn-success:hover {
+    background-color: #218838;
+}
+
+
+
+
+
+/* --- NEW STYLES (Add to End of File) --- */
+
+.report-table a.view-personal-report-btn {
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--primary-color);
+}
+
+.report-table a.view-personal-report-btn:hover {
+    text-decoration: underline;
+}
+
+#personal-report-modal {
+    max-width: 700px;
+}
+
+.personal-report-table th, .personal-report-table td {
+    text-align: center;
+}
+
+
+
+
+/* Fix for Employee Details Modal Layout */
+#employee-details-modal {
+    max-width: 650px; /* Make the modal a bit wider */
+}
+
+.modal-body .detail-section {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.modal-body .detail-section:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.modal-body .detail-section h3 {
+    font-size: 1.1em;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.detail-section-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Use a clean 2-column layout */
+    gap: 12px 20px; /* row-gap column-gap */
+}
+
+.detail-section-grid div {
+    font-size: 0.95em;
+    background-color: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+.detail-section-grid div strong {
+    color: var(--text-color);
+}
+
+.detail-section-grid span {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* Fix for Salary Advance Modal Scrolling */
+.advance-history-section .table-responsive {
+    max-height: 250px; /* Set a maximum height for the history table */
+    overflow-y: auto; /* Add a vertical scrollbar ONLY when needed */
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+
+
+
+/* ===== FIX FOR MODAL POSITIONING ===== */
+/* This will ensure all modals are perfectly centered on the screen */
+#modal-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.modal {
+    margin: auto; /* This helps with centering */
+    max-height: 90vh; /* Max height is 90% of screen height */
+    overflow-y: auto; /* If modal content is too long, the modal itself will scroll */
+}
+
+/* ===== NEW CALENDAR STYLES ===== */
+.calendar-widget {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #fdfdfd;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.calendar-header h4 {
+    margin: 0;
+    font-size: 1.1em;
+    color: var(--primary-color);
+}
+
+.calendar-header button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 1em;
+    line-height: 30px;
+    transition: background-color 0.2s;
+}
+
+.calendar-header button:hover {
+    background-color: #4C4CD9;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.calendar-grid div {
+    text-align: center;
+    padding: 8px 0;
+    border-radius: 4px;
+}
+
+.calendar-day-name {
+    font-weight: 600;
+    font-size: 0.8em;
+    color: var(--light-text-color);
+}
+
+.calendar-date {
+    font-size: 0.9em;
+    cursor: default;
+}
+
+.calendar-date.empty {
+    background-color: transparent;
+}
+
+/* Green for Present, Red for Absent */
+.calendar-date.present-day {
+    background-color: var(--success-color);
+    color: white;
+    font-weight: 600;
+}
+
+.calendar-date.absent-day {
+    background-color: var(--danger-color);
+    color: white;
+    font-weight: 600;
+}
+
+.calendar-summary {
+    margin-top: 15px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.calendar-summary span {
+    margin-left: 15px;
+}
+
+.calendar-summary .present-count {
+    color: var(--success-color);
+}
+
+.calendar-summary .absent-count {
+    color: var(--danger-color);
+}
+
+
+/* ######################################################## */
+/* ## NEW STYLES for Calendar Size & Summary (ADD AT END) ## */
+/* ######################################################## */
+
+/* ===== NEW: Make Calendar More Compact ===== */
+.calendar-widget {
+    padding: 12px; /* Reduced padding */
+}
+
+.calendar-grid {
+    gap: 3px; /* Reduced gap between dates */
+}
+
+.calendar-grid div {
+    padding: 5px 0; /* Reduced vertical padding for dates */
+}
+
+.calendar-day-name {
+    font-size: 0.75em; /* Smaller day names (S, M, T...) */
+}
+
+.calendar-date {
+    font-size: 0.85em; /* Smaller date numbers */
+}
+
+/* ===== NEW: Redesigned Calendar Summary ===== */
+.calendar-summary {
+    margin-top: 12px;
+    display: flex; /* Use flexbox for alignment */
+    justify-content: flex-end; /* Align to the right */
+    align-items: center;
+    gap: 15px; /* Space between P and A items */
+}
+
+.calendar-summary .summary-item {
+    display: flex;
+    align-items: center;
+    gap: 6px; /* Space between icon and text */
+    font-size: 0.9em;
+}
+
+.calendar-summary .summary-item i {
+    font-size: 1.1em; /* Adjust icon size */
+}
+
+.calendar-summary .present-icon {
+    color: var(--success-color);
+}
+
+.calendar-summary .absent-icon {
+    color: var(--danger-color);
+}
+
+/* ===== NEW: Utility classes for text color in details modal ===== */
+.danger-text {
+    color: var(--danger-color);
+    font-weight: 600;
+}
+.success-text {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+
+
+/* ########################################################## */
+/* ## NEW STYLES for Reports Section & Modal (ADD AT END) ## */
+/* ########################################################## */
+
+/* ===== Report Employee List Styles ===== */
+.report-employee-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.report-employee-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.report-employee-item:last-child {
+    border-bottom: none;
+}
+
+.report-employee-item:hover {
+    background-color: #f8f9fa;
+}
+
+.report-employee-item .emp-name {
+    font-weight: 500;
+}
+
+.report-employee-item .emp-salary {
+    font-weight: 600;
+    font-size: 1.1em;
+}
+
+/* ===== Salary Status Modal Styles ===== */
+#salary-status-modal {
+    max-width: 550px;
+}
+
+.status-summary-card {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 1px solid var(--border-color);
+}
+
+.payment-section {
+    margin-bottom: 25px;
+}
+
+.payment-section h3 {
+    font-size: 1.2em;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+#payment-history-list {
+    list-style: none;
+    padding: 0;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+#payment-history-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    background-color: #f1f1f1;
+}
+
+#payment-history-list li .date {
+    color: var(--light-text-color);
+    font-size: 0.9em;
+}
+
+#payment-history-list li .amount {
+    font-weight: 600;
+}
+
+/* Status Badge for Paid/Unpaid */
+.status-badge.status-paid {
+    background-color: var(--success-color);
+    color: white;
+}
+.status-badge.status-unpaid {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+
+
+/* ########################################################## */
+/* ## NEW STYLES for Improved Reports UI (ADD AT END)     ## */
+/* ########################################################## */
+
+/* ===== NEW: Improved Report Employee List Styles ===== */
+.report-employee-item {
+    padding: 12px 20px;
+    align-items: center;
+}
+
+.report-employee-item-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--light-text-color);
+}
+
+.report-employee-item .emp-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.report-employee-item .emp-info i {
+    font-size: 2em;
+    color: var(--light-text-color);
+}
+
+.report-employee-item .emp-info div {
+    display: flex;
+    flex-direction: column;
+}
+
+.report-employee-item .emp-name {
+    font-weight: 600;
+    font-size: 1.05em;
+    color: var(--text-color);
+}
+
+.report-employee-item .emp-id {
+    font-size: 0.8em;
+    color: var(--light-text-color);
+}
+
+.report-employee-item .emp-details {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.report-employee-item .emp-salary {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* ===== NEW: Improved Payment Actions Alert Box ===== */
+.payment-alert {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    border-radius: 6px;
+    align-items: flex-start;
+}
+
+.payment-alert i {
+    font-size: 1.8em;
+    margin-top: 5px;
+}
+
+.payment-alert div > strong {
+    font-size: 1.1em;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.payment-alert div > span {
+    font-size: 0.9em;
+    color: var(--light-text-color);
+    display: block;
+    margin-bottom: 15px;
+}
+
+.payment-alert.payment-alert-unpaid {
+    background-color: #fff8e1;
+    border: 1px solid #ffecb3;
+    color: #6d5b07;
+}
+.payment-alert.payment-alert-unpaid i {
+    color: #ffa000;
+}
+
+.payment-alert.payment-alert-paid {
+    background-color: #e8f5e9;
+    border: 1px solid #c8e6c9;
+    color: #1b5e20;
+}
+.payment-alert.payment-alert-paid i {
+    color: var(--success-color);
+}
+
+
+/* ########################################################## */
+/* ## NEW STYLES for Dashboard Overview Layout (ADD AT END) ## */
+/* ########################################################## */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Main content takes twice the space of the sidebar */
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.quick-actions-card h3 {
+    font-size: 1.2em;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.quick-actions-card .dashboard-actions {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 0;
+}
+
+.quick-actions-card .dashboard-actions .btn {
+    width: 100%;
+}
+
+/* Responsive behavior for the new grid */
+@media (max-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr; /* Stack columns on tablets and smaller */
+    }
+}
+
+
+/* ############################################################# */
+/* ## NEW STYLES for Responsive Stat Cards (ADD AT END)      ## */
+/* ############################################################# */
+
+.stat-card {
+    /* Allow card to shrink if needed */
+    flex: 1 1 200px;
+}
+
+.stat-card .stat-info {
+    /* Allow text to wrap and prevent overflow */
+    min-width: 0;
+}
+
+.stat-card .stat-info h3 {
+    white-space: normal; /* Allow title to wrap */
+    overflow-wrap: break-word;
+}
+
+.stat-card .stat-info p {
+    font-size: 2.0em; /* Slightly smaller base font size */
+    overflow-wrap: break-word; /* Break long numbers if they somehow overflow */
+}
+
+/* Media query for smaller screens like mobile phones */
+@media (max-width: 576px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr; /* 2 cards per row on small screens */
+    }
+    .stat-card {
+        flex-direction: column; /* Stack icon on top of text */
+        align-items: flex-start;
+        text-align: left;
+    }
+    .stat-card .stat-info p {
+        font-size: 1.8em; /* Further reduce font size */
+    }
+}
+
+
+/* ######################################################### */
+/* ## NEW STYLES for Employee Dashboard Layout (ADD AT END) ## */
+/* ######################################################### */
+
+/* New 2-Column Grid Layout */
+.card-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 25px;
+    align-items: flex-start;
+}
+
+.grid-col-left h4, .grid-col-right h4 {
+    margin-top: 0;
+    font-size: 1.2em;
+    color: var(--text-color);
+}
+
+/* Make calendar slightly smaller */
+.grid-col-left .calendar-widget {
+    padding: 10px;
+}
+.grid-col-left .calendar-date {
+    font-size: 0.8em;
+    padding: 4px 0;
+}
+.grid-col-left .calendar-day-name {
+    font-size: 0.7em;
+}
+.grid-col-left .calendar-header h4 {
+    font-size: 1em;
+}
+
+/* New Salary History List Styles */
+.payment-history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 250px; /* Set max height for scrollbar */
+    overflow-y: auto;
+}
+
+.payment-history-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+    margin-bottom: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.payment-history-list .history-item-date {
+    font-size: 0.9em;
+    color: var(--light-text-color);
+}
+.payment-history-list .history-item-amount {
+    font-weight: 600;
+    color: var(--success-color);
+}
+
+/* Responsive behavior for the new layout */
+@media (max-width: 992px) {
+    .card-grid-2col {
+        grid-template-columns: 1fr; /* Stack columns on smaller screens */
+    }
+}
+
+/* ########################################################## */
+/* ## NEW STYLES for Partial Payment Form (ADD AT END)    ## */
+/* ########################################################## */
+
+.make-payment-form {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.make-payment-form .input-group {
+    flex-grow: 1;
+    margin-bottom: 0;
+}
+
+.make-payment-form .btn {
+    margin-top: 0;
+    padding: 12px 20px;
+    /* align self to top of input box */
+}
+
+/* New Status Badge for Partially Paid */
+.status-badge.status-partially-paid {
+    background-color: var(--warning-color);
+    color: #333;
+}
+
+
+
+/* ######################################################### */
+/* ## NEW STYLES for Better Tab UI (ADD AT END)           ## */
+/* ######################################################### */
+
+.tab-content {
+    padding-top: 20px;
+}
+
+.tab-panel.active {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ############################################################### */
+/* ## FINAL Professional UI for Employee Dashboard (ADD AT END) ## */
+/* ############################################################### */
+
+/* ===== 1. Main 2-Column Layout ===== */
+.card-grid-2col {
+    display: grid;
+    /* Calendar column ko auto size denge aur History ko baaki space */
+    grid-template-columns: auto 1fr;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.grid-col-left h4, .grid-col-right h4 {
+    margin-top: 0;
+    font-size: 1.2em;
+    color: var(--text-color);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 15px;
+}
+.grid-col-left h4 i, .grid-col-right h4 i {
+    margin-right: 8px;
+    color: var(--primary-color);
+}
+
+.calendar-widget {
+    min-width: 300px; /* Calendar ko ek minimum width denge */
+}
+
+/* ===== 2. NEW Professional Transaction History Design ===== */
+.transaction-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 5px; /* Scrollbar ke liye thoda space */
+}
+
+/* Har entry ka naya card design */
+.transaction-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 12px;
+    background-color: #fff;
+    border: 1px solid #eef2f7; /* Halka border */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px -5px rgba(0, 0, 0, 0.05); /* Halka shadow */
+}
+
+.transaction-item-empty {
+    text-align: center;
+    padding: 20px;
+    color: var(--light-text-color);
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.transaction-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-grow: 1;
+}
+
+/* Icon ke liye colored circle */
+.transaction-info .icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.transaction-type {
+    font-weight: 600;
+    font-size: 1em;
+    display: block;
+    color: var(--text-color);
+}
+
+.transaction-date {
+    font-size: 0.85em;
+    color: var(--light-text-color);
+}
+
+/* Amount ko hamesha right side mein rakhega */
+.transaction-amount {
+    font-weight: 700;
+    font-size: 1.1em;
+    margin-left: auto; /* Magic line to push it to the right */
+    padding-left: 15px;
+}
+
+/* Red color for Advance */
+.transaction-advance .icon-wrapper {
+    background-color: #ffebee; /* Halka laal background */
+}
+.transaction-advance .fa-arrow-circle-down {
+    color: var(--danger-color);
+}
+.transaction-advance .transaction-amount {
+    color: var(--danger-color);
+}
+
+/* Green color for Payment */
+.transaction-payment .icon-wrapper {
+    background-color: #e8f5e9; /* Halka hara background */
+}
+.transaction-payment .fa-check-circle {
+    color: var(--success-color);
+}
+.transaction-payment .transaction-amount {
+    color: var(--success-color);
+}
+
+/* ===== 3. Responsive for Mobile ===== */
+@media (max-width: 992px) {
+    .card-grid-2col {
+        grid-template-columns: 1fr; /* Mobile par dono ek ke neeche ek */
+    }
+    .calendar-widget {
+        min-width: unset;
+    }
+}
+
+
+
+/* ############################################################### */
+/* ## FINAL Professional UI for Employee Dashboard (ADD AT END) ## */
+/* ############################################################### */
+
+/* ===== 1. Main 2-Column Layout ===== */
+.card-grid-2col {
+    display: grid;
+    /* Calendar (left) ko auto size denge aur History (right) ko baaki space */
+    grid-template-columns: auto 1fr;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.grid-col-left h4, .grid-col-right h4 {
+    margin-top: 0;
+    font-size: 1.2em;
+    color: var(--text-color);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 15px;
+}
+.grid-col-left h4 i, .grid-col-right h4 i {
+    margin-right: 8px;
+    color: var(--primary-color);
+}
+
+.calendar-widget {
+    min-width: 300px;
+    padding: 10px;
+}
+.calendar-date {
+    font-size: 0.8em;
+    padding: 4px 0;
+}
+.calendar-day-name {
+    font-size: 0.7em;
+}
+.calendar-header h4 {
+    font-size: 1em;
+}
+
+/* ===== 2. Professional Transaction History Design ===== */
+.history-controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.transaction-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.transaction-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 12px;
+    background-color: #fff;
+    border: 1px solid #eef2f7;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px -5px rgba(0, 0, 0, 0.05);
+    border-left-width: 5px;
+    transition: all 0.2s ease-in-out;
+}
+.transaction-item:hover {
+    box-shadow: 0 5px 15px -5px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.transaction-item-empty {
+    text-align: center;
+    padding: 20px;
+    color: var(--light-text-color);
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.transaction-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-grow: 1;
+}
+
+.transaction-info .icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.transaction-type {
+    font-weight: 600;
+    font-size: 1em;
+    display: block;
+    color: var(--text-color);
+}
+
+.transaction-date {
+    font-size: 0.85em;
+    color: var(--light-text-color);
+}
+
+.transaction-amount {
+    font-weight: 700;
+    font-size: 1.1em;
+    margin-left: auto;
+    padding-left: 15px;
+    white-space: nowrap;
+}
+
+/* Red for Advance */
+.transaction-advance {
+    border-left-color: var(--danger-color);
+}
+.transaction-advance .icon-wrapper {
+    background-color: #ffebee;
+}
+.transaction-advance .fa-arrow-circle-down {
+    color: var(--danger-color);
+}
+.transaction-advance .transaction-amount {
+    color: var(--danger-color);
+}
+
+/* Green for Payment */
+.transaction-payment {
+    border-left-color: var(--success-color);
+}
+.transaction-payment .icon-wrapper {
+    background-color: #e8f5e9;
+}
+.transaction-payment .fa-check-circle {
+    color: var(--success-color);
+}
+.transaction-payment .transaction-amount {
+    color: var(--success-color);
+}
+
+
+/* ===== 3. Responsive for Mobile ===== */
+@media (max-width: 992px) {
+    .card-grid-2col {
+        grid-template-columns: 1fr; /* Mobile par dono ek ke neeche ek */
+    }
+    .calendar-widget {
+        min-width: unset;
+    }
+}
+
+
+
+/* ADD THIS CODE TO THE VERY END OF YOUR style.css FILE */
+
+.self-attendance-card .card-body {
+    flex-direction: row;
+    justify-content: center;
+    gap: 20px;
+}
+
+.self-attendance-card .btn {
+    flex: 1;
+}
+
+.attendance-status-message {
+    text-align: center;
+    margin-top: 15px;
+    font-weight: 500;
+    padding: 10px;
+    border-radius: 6px;
+    display: none; /* Hidden by default */
+}
+
+.attendance-status-message.success {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+    display: block;
+}
+
+.attendance-status-message.error {
+    background-color: #ffebee;
+    color: var(--danger-color);
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .self-attendance-card .card-body {
+        flex-direction: column;
+    }
+}
+
+/* ADD THIS CODE TO THE VERY END OF YOUR style.css FILE */
+
+.self-attendance-card {
+    margin-bottom: 25px; /* Add space below this card */
+}
+
+.self-attendance-card .card-body {
+    flex-direction: row;
+    justify-content: center;
+    gap: 20px;
+}
+
+.self-attendance-card .btn {
+    flex: 1;
+}
+
+.attendance-status-message {
+    text-align: center;
+    margin-top: 15px;
+    font-weight: 500;
+    padding: 10px;
+    border-radius: 6px;
+    display: none; /* Hidden by default */
+}
+
+.attendance-status-message.success {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+    display: block;
+}
+
+.attendance-status-message.error {
+    background-color: #ffebee;
+    color: var(--danger-color);
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .self-attendance-card .card-body {
+        flex-direction: column;
+    }
+}
+
+
+.dashboard-body {
+    background-color: var(--background-color);
+}
+
+.dashboard-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-link-color);
+    flex-shrink: 0; /* Prevents sidebar from shrinking */
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex-grow: 1; /* Takes remaining space */
+    padding: 20px;
+    width: calc(100% - 260px);
+    overflow-x: hidden;
+}
+
+/* Sidebar Profile (Employee) */
+.sidebar-profile {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #34495E;
+}
+
+.initials-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-color);
+    color: white;
+    margin: 0 auto 15px auto;
+}
+
+.initials-avatar span {
+    font-size: 2.5em;
+    font-weight: bold;
+}
+
+.sidebar-profile h3, .sidebar-header h2 {
+    margin: 0;
+    color: #fff;
+    font-weight: 500;
+}
+
+/* Sidebar Header (Admin) */
+.sidebar-header {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #34495E;
+}
+
+.sidebar-header i {
+    font-size: 3em;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+    flex-grow: 1;
+    padding-top: 10px;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    padding: 14px 25px;
+    color: var(--sidebar-link-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+    border-left: 4px solid transparent;
+}
+
+.sidebar-nav a:hover {
+    background-color: var(--sidebar-link-hover);
+    color: #fff;
+}
+
+.sidebar-nav a.active {
+    background-color: var(--sidebar-link-hover);
+    color: #fff;
+    border-left-color: var(--primary-color);
+}
+
+.sidebar-nav a i {
+    margin-right: 15px;
+    width: 20px;
+}
+
+/* Header (Top Bar) */
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+}
+
+.menu-toggle-btn {
+    display: none; /* Hidden on large screens */
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 15px;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+    font-size: 1.8em;
+    flex-grow: 1;
+}
+
+/* Content Views */
+.content-view {
+    display: none;
+}
+.content-view.active {
+    display: block;
+}
+
+/* ==========================================================================
+   3. DASHBOARD WIDGETS (STATS CARDS, ETC.)
+   ========================================================================== */
+
+/* Stat Cards (For Admin) */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.stat-card {
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;   /* Vertical Layout */
+    align-items: flex-start; /* Aligns items to the left */
+    gap: 10px;               /* Space between icon and text */
+}
+
+.stat-card .stat-icon {
+    font-size: 2em;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.stat-card .stat-info h3 {
+    font-size: 0.9em;
+    color: var(--light-text-color);
+    margin-bottom: 5px;
+}
+
+.stat-card .stat-info p {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+}
+
+/* Detail Cards (For Employee) */
+.user-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.detail-card {
+    background-color: var(--card-bg-color);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+.detail-card h4 {
+    margin: 0 0 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.info-item i {
+    font-size: 1.5em;
+    color: var(--light-text-color);
+    width: 30px;
+    text-align: center;
+}
+
+.info-item div span {
+    display: block;
+    color: var(--light-text-color);
+    font-size: 0.9em;
+}
+
+.info-item div strong {
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+
+/* ==========================================================================
+   4. RESPONSIVE DESIGN (FOR SLIDERBAR)
+   ========================================================================== */
+@media (max-width: 992px) {
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100%;
+        z-index: 1000;
+        transform: translateX(-100%); /* Hide sidebar off-screen */
+        transition: transform 0.3s ease-in-out;
+        box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+    }
+
+    .main-content {
+        width: 100%;
+        padding: 20px;
+        margin-left: 0;
+    }
+
+    .dashboard-header {
+        position: relative;
+    }
+
+    /* This class will be added by JavaScript to show the sidebar */
+    .dashboard-wrapper.sidebar-open .sidebar {
+        transform: translateX(0); /* Show sidebar */
+    }
+    
+    .menu-toggle-btn {
+        display: block; /* Show the menu button */
+    }
+    
+    /* Black overlay when menu is open */
+    .dashboard-wrapper.sidebar-open::after {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999; /* Below sidebar, above content */
+    }
+}

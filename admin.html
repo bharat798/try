@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+    <div class="dashboard-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-users-cog sidebar-logo"></i>
+                <h2>Admin Panel</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#" class="nav-link active" data-view="dashboard-overview"><i class="fas fa-th-large"></i> Dashboard Overview</a></li>
+                    <li><a href="#" class="nav-link" data-view="manage-employees"><i class="fas fa-users"></i> Manage Employees</a></li>
+                    <li><a href="#" class="nav-link" data-view="attendance-feed"><i class="fas fa-calendar-check"></i> Today's Attendance</a></li>
+                    <li><a href="#" class="nav-link" data-view="attendance-history"><i class="fas fa-history"></i> Attendance History</a></li>
+                    <li><a href="#" class="nav-link" data-view="salary-advances"><i class="fas fa-hand-holding-usd"></i> Salary Advances</a></li>
+                    <li><a href="#" class="nav-link" data-view="payroll-reports"><i class="fas fa-chart-line"></i> Reports & Analytics</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="dashboard-header">
+                <button class="menu-toggle-btn" id="menu-toggle-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 id="page-title">Dashboard Overview</h1>
+                <button id="logout-btn" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </header>
+            
+            <section id="dashboard-overview-view" class="content-view active">
+                 <div class="stats-grid" id="stats-grid-container" style="margin-top:20px;"></div>
+                 <div class="card" style="margin-top:30px;"><h2>Quick Actions</h2><div class="dashboard-actions" style="margin-top:20px;"><button class="btn btn-primary" id="enroll-btn-quick"><i class="fas fa-user-plus"></i> Enroll New Employee</button></div></div>
+            </section>
+            
+            <section id="manage-employees-view" class="content-view">
+                <button class="btn btn-primary" id="enroll-btn-main" style="margin-top:20px;"><i class="fas fa-user-plus"></i> Enroll New Employee</button>
+                <button class="btn btn-secondary" id="update-old-records-btn" style="margin-top:20px;"><i class="fas fa-sync-alt"></i> Update Old Employee IDs</button>
+                <div class="table-responsive" style="margin-top:20px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Employee ID</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Joining Date</th>
+                                <th>Base Salary</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section id="attendance-feed-view" class="content-view">
+                <div class="card" style="margin-top:20px;"><h2>Today's Live Attendance Feed</h2><p>This list updates in real-time as employees mark their attendance.</p><ul id="attendance-list" class="recent-activity-card"><li>Loading...</li></ul></div>
+            </section>
+            
+            <section id="attendance-history-view" class="content-view">
+                <div class="attendance-date-selection" style="margin-top:20px;"><label for="history-date-filter">Filter by Date:</label><input type="date" id="history-date-filter" class="form-control"><button id="filter-attendance-btn" class="btn btn-primary">Filter</button></div>
+                <div class="table-responsive" style="margin-top:20px;"><table class="data-table"><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Check-in Time</th></tr></thead><tbody id="attendance-history-table-body"></tbody></table></div>
+            </section>
+            
+            <section id="salary-advances-view" class="content-view">
+                <p style="margin-top:20px;">Select an employee to view their details and manage salary advances.</p>
+                <div class="card"><ul class="employee-list" id="employee-advance-list"></ul></div>
+            </section>
+            
+            <section id="payroll-reports-view" class="content-view">
+                 <div class="report-controls card" style="margin-top:20px;"><div class="control-group"><label for="report-year-selector">Select Year</label><select id="report-year-selector" class="form-control"></select></div><div class="control-group"><label for="report-month-selector">Select Month</label><select id="report-month-selector" class="form-control"><option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option></select></div></div>
+                 <div id="report-list-container" style="margin-top:20px;"></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="modal-container">
+        <div class="modal" id="enroll-modal"><div class="modal-header"><h2><i class="fas fa-user-plus"></i> Enroll New Employee</h2></div><div class="modal-body"><form id="enroll-form"><div class="input-group"><input type="text" id="name" required><label for="name">Employee Name</label></div><div class="input-group"><input type="email" id="email" required><label for="email">Employee Email</label></div><div class="input-group"><input type="password" id="password" required><label for="password">Temporary Password</label></div><div class="input-group"><input type="tel" id="phone" required><label for="phone">Phone Number</label></div><div class="input-group"><input type="text" id="aadhar" required><label for="aadhar">Aadhar Number</label></div><div class="input-group"><input type="number" id="salary" required><label for="salary">Base Salary</label></div><div class="input-group"><input type="date" id="joining-date" required><label for="joining-date">Joining Date</label></div></form></div><div class="modal-actions"><button type="button" class="btn btn-secondary" id="close-enroll-modal">Cancel</button><button type="submit" form="enroll-form" class="btn btn-primary">Enroll</button></div></div>
+        <div class="modal" id="employee-details-modal"><div class="modal-header"><h2><i class="fas fa-info-circle"></i> Employee Details</h2></div><div class="modal-body"><div class="detail-section"><h3><i class="fas fa-user-circle"></i> Personal & Payroll</h3><div class="detail-section-grid compact-details">
+            <div><strong>Employee ID:</strong> <span id="detail-id"></span></div>
+            <div><strong>Name:</strong> <span id="detail-name"></span></div>
+            <div><strong>Phone:</strong> <span id="detail-phone"></span></div>
+            <div><strong>Aadhar:</strong> <span id="detail-aadhar"></span></div>
+            <div><strong>Joining Date:</strong> <span id="detail-joining-date"></span></div>
+            <div><strong>Base Salary:</strong> <span id="detail-base-salary"></span></div>
+            <div><strong>Present (Month):</strong> <span id="detail-present-days"></span></div>
+            <div><strong>Advances (Month):</strong> <span id="detail-advances" class="danger-text"></span></div>
+            <div><strong>Net Salary:</strong> <span id="detail-calculated-salary" class="success-text"></span></div>
+        </div></div><div class="detail-section"><h3><i class="fas fa-calendar-alt"></i> Attendance Calendar</h3><div class="calendar-widget"><div class="calendar-header"><button id="admin-cal-prev-month-btn">&lt;</button><h4 id="admin-cal-month-year-display"></h4><button id="admin-cal-next-month-btn">&gt;</button></div><div class="calendar-grid" id="admin-cal-days-grid"></div><div class="calendar-summary" id="admin-cal-summary"></div></div></div></div><div class="modal-actions"><button type="button" class="btn btn-primary" id="close-employee-details-modal">Close</button></div></div>
+        <div class="modal" id="advance-details-modal"><div class="modal-header"><h2><i class="fas fa-hand-holding-usd"></i> Manage Advance for <span id="adv-modal-name"></span></h2></div><div class="modal-body"><div class="advance-form-section"><h3><i class="fas fa-plus-circle"></i> Record New Advance</h3><form id="record-advance-form"><div class="input-group"><input type="number" id="advance-amount" required min="1"><label for="advance-amount">Amount (₹)</label></div><button type="submit" class="btn btn-primary btn-full-width">Record Advance</button></form></div><div class="advance-history-section"><h3><i class="fas fa-history"></i> Advance History (This Month)</h3><div class="table-responsive"><table class="simple-table"><thead><tr><th>Date</th><th>Amount (₹)</th></tr></thead><tbody id="adv-history-body"></tbody></table></div></div></div><div class="modal-actions"><button type="button" class="btn btn-secondary" id="close-advance-details-modal">Close</button></div></div>
+        <div class="modal" id="personal-report-modal"><div class="modal-header"><h2><i class="fas fa-user-chart"></i> Yearly Report for <span id="personal-report-name"></span></h2></div><div class="modal-body"><div class="table-responsive"><table class="data-table personal-report-table"><thead><tr><th>Month</th><th>Present Days</th><th>Salary Earned</th><th>Advances</th><th>Net Payable</th></tr></thead><tbody id="personal-report-table-body"></tbody></table></div></div><div class="modal-actions"><button type="button" class="btn btn-primary" id="close-personal-report-modal">Close</button></div></div>
+        <div class="modal" id="message-modal"><div id="message-icon"></div><h2 id="message-title"></h2><p id="message-text"></p><div class="modal-actions"><button class="btn btn-primary" id="close-message-modal">OK</button></div></div>
+    </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="admin.js"></script>
+    <script src="reports.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+    <div class="dashboard-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-users-cog sidebar-logo"></i>
+                <h2>Admin Panel</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#" class="nav-link active" data-view="dashboard-overview"><i class="fas fa-th-large"></i> Dashboard Overview</a></li>
+                    <li><a href="#" class="nav-link" data-view="manage-employees"><i class="fas fa-users"></i> Manage Employees</a></li>
+                    <li><a href="#" class="nav-link" data-view="attendance-feed"><i class="fas fa-calendar-check"></i> Today's Attendance</a></li>
+                    <li><a href="#" class="nav-link" data-view="attendance-history"><i class="fas fa-history"></i> Attendance History</a></li>
+                    <li><a href="#" class="nav-link" data-view="salary-advances"><i class="fas fa-hand-holding-usd"></i> Salary Advances</a></li>
+                    <li><a href="#" class="nav-link" data-view="payroll-reports"><i class="fas fa-chart-line"></i> Reports & Analytics</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="dashboard-header">
+                <h1 id="page-title">Dashboard Overview</h1>
+                <button id="logout-btn" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </header>
+            
+            <section id="dashboard-overview-view" class="content-view active">
+                 <div class="stats-grid" id="stats-grid-container" style="margin-top:20px;"></div>
+                 <div class="card" style="margin-top:30px;"><h2>Quick Actions</h2><div class="dashboard-actions" style="margin-top:20px;"><button class="btn btn-primary" id="enroll-btn-quick"><i class="fas fa-user-plus"></i> Enroll New Employee</button></div></div>
+            </section>
+            
+            <section id="manage-employees-view" class="content-view">
+                <button class="btn btn-primary" id="enroll-btn-main" style="margin-top:20px;"><i class="fas fa-user-plus"></i> Enroll New Employee</button>
+                <button class="btn btn-secondary" id="update-old-records-btn" style="margin-top:20px;"><i class="fas fa-sync-alt"></i> Update Old Employee IDs</button>
+                <div class="table-responsive" style="margin-top:20px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Employee ID</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Joining Date</th>
+                                <th>Base Salary</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section id="attendance-feed-view" class="content-view">
+                <div class="card" style="margin-top:20px;"><h2>Today's Live Attendance Feed</h2><p>This list updates in real-time as employees mark their attendance.</p><ul id="attendance-list" class="recent-activity-card"><li>Loading...</li></ul></div>
+            </section>
+            
+            <section id="attendance-history-view" class="content-view">
+                <div class="attendance-date-selection" style="margin-top:20px;"><label for="history-date-filter">Filter by Date:</label><input type="date" id="history-date-filter" class="form-control"><button id="filter-attendance-btn" class="btn btn-primary">Filter</button></div>
+                <div class="table-responsive" style="margin-top:20px;"><table class="data-table"><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Check-in Time</th></tr></thead><tbody id="attendance-history-table-body"></tbody></table></div>
+            </section>
+            
+            <section id="salary-advances-view" class="content-view">
+                <p style="margin-top:20px;">Select an employee to view their details and manage salary advances.</p>
+                <div class="card"><ul class="employee-list" id="employee-advance-list"></ul></div>
+            </section>
+            
+            <section id="payroll-reports-view" class="content-view">
+                 <div class="report-controls card" style="margin-top:20px;"><div class="control-group"><label for="report-year-selector">Select Year</label><select id="report-year-selector" class="form-control"></select></div><div class="control-group"><label for="report-month-selector">Select Month</label><select id="report-month-selector" class="form-control"><option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option></select></div></div>
+                 <div id="report-list-container" style="margin-top:20px;"></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="modal-container">
+        <div class="modal" id="enroll-modal"><div class="modal-header"><h2><i class="fas fa-user-plus"></i> Enroll New Employee</h2></div><div class="modal-body"><form id="enroll-form"><div class="input-group"><input type="text" id="name" required><label for="name">Employee Name</label></div><div class="input-group"><input type="email" id="email" required><label for="email">Employee Email</label></div><div class="input-group"><input type="password" id="password" required><label for="password">Temporary Password</label></div><div class="input-group"><input type="tel" id="phone" required><label for="phone">Phone Number</label></div><div class="input-group"><input type="text" id="aadhar" required><label for="aadhar">Aadhar Number</label></div><div class="input-group"><input type="number" id="salary" required><label for="salary">Base Salary</label></div><div class="input-group"><input type="date" id="joining-date" required><label for="joining-date">Joining Date</label></div></form></div><div class="modal-actions"><button type="button" class="btn btn-secondary" id="close-enroll-modal">Cancel</button><button type="submit" form="enroll-form" class="btn btn-primary">Enroll</button></div></div>
+        <div class="modal" id="employee-details-modal"><div class="modal-header"><h2><i class="fas fa-info-circle"></i> Employee Details</h2></div><div class="modal-body"><div class="detail-section"><h3><i class="fas fa-user-circle"></i> Personal & Payroll</h3><div class="detail-section-grid compact-details">
+            <div><strong>Employee ID:</strong> <span id="detail-id"></span></div>
+            <div><strong>Name:</strong> <span id="detail-name"></span></div>
+            <div><strong>Phone:</strong> <span id="detail-phone"></span></div>
+            <div><strong>Aadhar:</strong> <span id="detail-aadhar"></span></div>
+            <div><strong>Joining Date:</strong> <span id="detail-joining-date"></span></div>
+            <div><strong>Base Salary:</strong> <span id="detail-base-salary"></span></div>
+            <div><strong>Present (Month):</strong> <span id="detail-present-days"></span></div>
+            <div><strong>Advances (Month):</strong> <span id="detail-advances" class="danger-text"></span></div>
+            <div><strong>Net Salary:</strong> <span id="detail-calculated-salary" class="success-text"></span></div>
+        </div></div><div class="detail-section"><h3><i class="fas fa-calendar-alt"></i> Attendance Calendar</h3><div class="calendar-widget"><div class="calendar-header"><button id="admin-cal-prev-month-btn">&lt;</button><h4 id="admin-cal-month-year-display"></h4><button id="admin-cal-next-month-btn">&gt;</button></div><div class="calendar-grid" id="admin-cal-days-grid"></div><div class="calendar-summary" id="admin-cal-summary"></div></div></div></div><div class="modal-actions"><button type="button" class="btn btn-primary" id="close-employee-details-modal">Close</button></div></div>
+        <div class="modal" id="advance-details-modal"><div class="modal-header"><h2><i class="fas fa-hand-holding-usd"></i> Manage Advance for <span id="adv-modal-name"></span></h2></div><div class="modal-body"><div class="advance-form-section"><h3><i class="fas fa-plus-circle"></i> Record New Advance</h3><form id="record-advance-form"><div class="input-group"><input type="number" id="advance-amount" required min="1"><label for="advance-amount">Amount (₹)</label></div><button type="submit" class="btn btn-primary btn-full-width">Record Advance</button></form></div><div class="advance-history-section"><h3><i class="fas fa-history"></i> Advance History (This Month)</h3><div class="table-responsive"><table class="simple-table"><thead><tr><th>Date</th><th>Amount (₹)</th></tr></thead><tbody id="adv-history-body"></tbody></table></div></div></div><div class="modal-actions"><button type="button" class="btn btn-secondary" id="close-advance-details-modal">Close</button></div></div>
+        <div class="modal" id="personal-report-modal"><div class="modal-header"><h2><i class="fas fa-user-chart"></i> Yearly Report for <span id="personal-report-name"></span></h2></div><div class="modal-body"><div class="table-responsive"><table class="data-table personal-report-table"><thead><tr><th>Month</th><th>Present Days</th><th>Salary Earned</th><th>Advances</th><th>Net Payable</th></tr></thead><tbody id="personal-report-table-body"></tbody></table></div></div><div class="modal-actions"><button type="button" class="btn btn-primary" id="close-personal-report-modal">Close</button></div></div>
+        <div class="modal" id="message-modal"><div id="message-icon"></div><h2 id="message-title"></h2><p id="message-text"></p><div class="modal-actions"><button class="btn btn-primary" id="close-message-modal">OK</button></div></div>
+    </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="admin.js"></script>
+    <script src="reports.js"></script>
+</body>
+</html>
+ -->
+
+
+
+
+
