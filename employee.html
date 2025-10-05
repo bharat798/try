@@ -30,12 +30,12 @@
 
         <main class="main-content">
            <header class="dashboard-header">
-        <button class="menu-toggle-btn" id="menu-toggle-btn">
-            <i class="fas fa-bars"></i>
-        </button>
-        <h1 id="page-title" class="main-title" style="margin: 0;">Employee Details</h1>
-        <button id="logout-btn" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</button>
-    </header>
+                <button class="menu-toggle-btn" id="menu-toggle-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 id="page-title" class="main-title" style="margin: 0;">Employee Details</h1>
+                <button id="logout-btn" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </header>
             
             <div id="details-view" class="content-view active">
                 <div class="user-details-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-top: 20px;">
@@ -80,107 +80,3 @@
     <script src="employee.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="dashboard-body">
-
-    <div class="dashboard-wrapper">
-        <aside class="sidebar">
-            <div class="sidebar-profile">
-                <div class="initials-avatar">
-                    <span id="sidebar-initials-text"></span>
-                </div>
-                <h3 id="sidebar-user-name">Employee</h3>
-            </div>
-            <nav class="sidebar-nav">
-                <ul>
-                    <li><a href="#" class="nav-link active" data-view="details"><i class="fas fa-user-alt"></i> Employee Details</a></li>
-                    <li><a href="#" class="nav-link" data-view="attendance"><i class="fas fa-fingerprint"></i> Attendance</a></li>
-                </ul>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <header class="dashboard-header">
-                <h1 id="page-title" class="main-title" style="margin: 0;">Employee Details</h1>
-                <button id="logout-btn" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </header>
-            
-            <div id="details-view" class="content-view active">
-                <div class="user-details-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-top: 20px;">
-                    <div class="detail-card">
-                        <h4><i class="fas fa-address-card"></i> Personal Information</h4>
-                        <div class="info-item"><i class="fas fa-id-badge"></i><div><span>Employee ID</span><strong id="user-id-display">N/A</strong></div></div>
-                        <div class="info-item"><i class="fas fa-phone-alt"></i><div><span>Phone Number</span><strong id="user-phone-display">N/A</strong></div></div>
-                        <div class="info-item"><i class="fas fa-id-card"></i><div><span>Aadhar Number</span><strong id="user-aadhar-display">N/A</strong></div></div>
-                    </div>
-                    <div class="detail-card">
-                        <h4><i class="fas fa-calendar-alt"></i> This Month's Summary</h4>
-                        <div class="info-item"><i class="fas fa-calendar-check icon-present"></i><div><span>Days Present</span><strong id="days-present-display">0</strong></div></div>
-                        <div class="info-item"><i class="fas fa-calendar-times icon-absent"></i><div><span>Days Absent</span><strong id="days-absent-display">0</strong></div></div>
-                    </div>
-                    <div class="detail-card salary-card">
-                        <h4><i class="fas fa-wallet"></i> Salary Details</h4>
-                        <div class="info-item"><i class="fas fa-sack-dollar"></i><div><span>Base Salary</span><strong id="user-base-salary-display">N/A</strong></div></div>
-                        <div class="info-item advances-item"><i class="fas fa-hand-holding-usd"></i><div><span>Advances This Month</span><strong id="user-advances-display">N/A</strong></div></div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="attendance-view" class="content-view">
-                <div class="card" style="margin-top: 20px;">
-                    <div class="card-header" style="text-align: left; padding: 20px; border-bottom: 1px solid var(--border-color); margin-bottom: 0;">
-                        <h4 style="margin:0;"><i class="fas fa-fingerprint"></i> Self Attendance System</h4>
-                    </div>
-                    <div class="card-body" style="flex-direction: row; justify-content: flex-start; gap: 20px; padding: 20px;">
-                        <button id="register-passkey-btn" class="btn btn-primary"><i class="fas fa-id-card"></i> Register Fingerprint/Face ID</button>
-                        <button id="mark-attendance-btn" class="btn btn-secondary" style="background-color: #28a745; color: white;"><i class="fas fa-calendar-check"></i> Mark Today's Attendance</button>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-
-<script src="firebase-config.js"></script>
-<script src="employee.js"></script>
-</body>
-</html> -->
