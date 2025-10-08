@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentlyViewedEmployee = null;
     let calendarDate = new Date();
 
-    // --- AUTHENTICATION CHECK ---
     auth.onAuthStateChanged(user => {
         if (user && user.email === "admin@company.com") {
             initializeAdminDashboard();
@@ -12,8 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- UTILITY FUNCTIONS ---
     const formatDate = (d) => d ? (d.toDate ? d.toDate() : new Date(d)).toLocaleDateString('en-GB') : 'N/A';
+    const formatCurrency = (amount) => `₹${parseFloat(amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
     const generateEmployeeId = () => {
         const date = new Date();
@@ -46,7 +45,11 @@ document.addEventListener('DOMContentLoaded', () => {
         showModal(messageModal);
     };
 
-    // --- INITIALIZATION ---
+    // YAHAN BADLAV KIYA GAYA HAI: showMessage function ko global banaya gaya hai
+    window.showMessage = showMessage;
+    window.showModal = showModal;
+    window.hideModals = hideModals;
+
     function initializeAdminDashboard() {
         initializeNavigation();
         loadDashboardOverview();
@@ -69,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- NAVIGATION ---
     function initializeNavigation() {
         const viewMap = {
             'dashboard-overview': { title: 'Dashboard Overview', func: loadDashboardOverview },
@@ -97,7 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- CORE DATA FETCHING ---
     async function fetchDataAndProcess() {
         const empSnap = await db.collection('employees').get();
         const employees = empSnap.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
@@ -117,7 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
-    // --- VIEW-SPECIFIC FUNCTIONS ---
     async function loadDashboardOverview() {
         await fetchDataAndProcess();
         const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
@@ -168,11 +168,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function listenForAttendance() {
-        const list = document.getElementById('attendance-list');
-        const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+        const tableBody = document.getElementById('attendance-list-table-body');
+        const todayStart = new Date(); 
+        todayStart.setHours(0, 0, 0, 0);
         db.collection('attendance').where('timestamp', '>=', todayStart).orderBy('timestamp', 'desc').onSnapshot(snap => {
-            if (snap.empty) { list.innerHTML = '<li>No attendance marked yet today.</li>'; return; }
-            list.innerHTML = snap.docs.map(doc => `<li><strong>${doc.data().name}</strong> checked in at ${doc.data().timestamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</li>`).join('');
+            if (snap.empty) {
+                tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No attendance marked yet today.</td></tr>';
+                return;
+            }
+            tableBody.innerHTML = snap.docs.map(doc => {
+                const data = doc.data();
+                const time = data.timestamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                return `<tr><td>${data.name}</td><td>${data.email}</td><td>${time}</td></tr>`;
+            }).join('');
         });
     }
 
@@ -248,24 +256,55 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('record-advance-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const amount = parseFloat(document.getElementById('advance-amount').value);
-            if (!currentlyViewedEmployee || !amount) return;
-            await db.collection('employees').doc(currentlyViewedEmployee.docId).collection('advances').add({ amount, date: new Date() });
-            showMessage("Success", "Advance recorded.", true);
-            e.target.reset();
-            showAdvanceDetailsModal(currentlyViewedEmployee.docId);
+            const advanceDate = new Date(document.getElementById('advance-date').value);
+            if (!currentlyViewedEmployee || !amount || !advanceDate) return showMessage("Error", "Please fill all fields.", false);
+
+            try {
+                await db.collection('employees').doc(currentlyViewedEmployee.docId).collection('advances').add({ 
+                    amount, 
+                    date: firebase.firestore.Timestamp.fromDate(advanceDate)
+                });
+                showMessage("Success", "Advance recorded.", true);
+                e.target.reset();
+                showAdvanceDetailsModal(currentlyViewedEmployee.docId);
+            } catch (error) {
+                showMessage("Error", `Failed to record advance: ${error.message}`, false);
+            }
         });
     }
 
     async function showAdvanceDetailsModal(docId) {
         currentlyViewedEmployee = allEmployeeData.find(e => e.docId === docId);
-        document.getElementById('adv-modal-name').textContent = currentlyViewedEmployee.name;
-        const advSnap = await db.collection('employees').doc(docId).collection('advances').orderBy('date', 'desc').get();
+        if (!currentlyViewedEmployee) return;
+
+        const emp = currentlyViewedEmployee;
+        document.getElementById('adv-modal-name').textContent = emp.name;
+        document.getElementById('advance-date').valueAsDate = new Date();
+
+        const today = new Date();
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        const attenSnap = await db.collection('attendance').where('userId', '==', emp.uid).where('timestamp', '>=', startOfMonth).get();
+        const presentDays = attenSnap.size;
+
+        const advSnap = await db.collection('employees').doc(docId).collection('advances').where('date', '>=', startOfMonth).orderBy('date', 'desc').get();
+        const totalAdvances = advSnap.docs.reduce((sum, doc) => sum + doc.data().amount, 0);
+
+        const earnedSalary = (emp.baseSalary / 30) * presentDays;
+        const netPayable = Math.max(0, earnedSalary - totalAdvances);
+
+        document.getElementById('summary-base-salary').textContent = formatCurrency(emp.baseSalary);
+        document.getElementById('summary-earned-salary').textContent = formatCurrency(earnedSalary);
+        document.getElementById('summary-total-advances').textContent = `- ${formatCurrency(totalAdvances)}`;
+        document.getElementById('summary-net-payable').textContent = formatCurrency(netPayable);
+
         const historyBody = document.getElementById('adv-history-body');
         if (advSnap.empty) { 
-            historyBody.innerHTML = '<tr><td colspan="2">No advances this month.</td></tr>'; 
+            historyBody.innerHTML = '<tr><td colspan="2" style="text-align: center;">No advances recorded this month.</td></tr>'; 
         } else {
-            historyBody.innerHTML = advSnap.docs.map(doc => `<tr><td>${formatDate(doc.data().date)}</td><td>₹${doc.data().amount}</td></tr>`).join('');
+            historyBody.innerHTML = advSnap.docs.map(doc => `<tr><td>${formatDate(doc.data().date)}</td><td>${formatCurrency(doc.data().amount)}</td></tr>`).join('');
         }
+        
         showModal(document.getElementById('advance-details-modal'));
     }
 
