@@ -45,11 +45,28 @@
             
             <section id="manage-employees-view" class="content-view">
                 <button class="btn btn-primary" id="enroll-btn-main" style="margin-top:20px;"><i class="fas fa-user-plus"></i> Enroll New Employee</button>
-                <div class="table-responsive" style="margin-top:20px;"><table class="data-table"><thead><tr><th>Employee Id</th><th>Name</th><th>Phone</th><th>Joining Date</th><th>Base Salary</th><th>Actions</th></tr></thead><tbody id="admin-table-body"></tbody></table></div>
+                <div class="table-responsive" style="margin-top:20px;"><table class="data-table"><thead><tr><th>Employee ID</th><th>Name</th><th>Phone</th><th>Joining Date</th><th>Base Salary</th><th>Actions</th></tr></thead><tbody id="admin-table-body"></tbody></table></div>
             </section>
             
             <section id="attendance-feed-view" class="content-view">
-                <div class="card" style="margin-top:20px;"><h2>Today's Live Attendance Feed</h2><p>This list updates in real-time as employees mark their attendance.</p><ul id="attendance-list" class="recent-activity-card"><li>Loading...</li></ul></div>
+                <div class="card" style="margin-top:20px;">
+                    <h2>Today's Live Attendance Feed</h2>
+                    <p>This list updates in real-time as employees mark their attendance.</p>
+                    <div class="table-responsive" style="margin-top: 10px;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Check-in Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendance-list-table-body">
+                                <tr><td colspan="3" style="text-align: center;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </section>
             
             <section id="attendance-history-view" class="content-view">
@@ -72,8 +89,41 @@
     <div id="modal-container">
         <div class="modal" id="enroll-modal"><div class="modal-header"><h2><i class="fas fa-user-plus"></i> Enroll New Employee</h2></div><div class="modal-body"><form id="enroll-form"><div class="input-group"><input type="text" id="name" required><label for="name">Employee Name</label></div><div class="input-group"><input type="email" id="email" required><label for="email">Employee Email</label></div><div class="input-group"><input type="password" id="password" required><label for="password">Temporary Password</label></div><div class="input-group"><input type="tel" id="phone" required><label for="phone">Phone Number</label></div><div class="input-group"><input type="text" id="aadhar" required><label for="aadhar">Aadhar Number</label></div><div class="input-group"><input type="number" id="salary" required><label for="salary">Base Salary</label></div><div class="input-group"><input type="date" id="joining-date" required><label for="joining-date">Joining Date</label></div></form></div><div class="modal-actions"><button type="button" class="btn btn-secondary" id="close-enroll-modal">Cancel</button><button type="submit" form="enroll-form" class="btn btn-primary">Enroll</button></div></div>
         <div class="modal" id="employee-details-modal"><div class="modal-header"><h2><i class="fas fa-info-circle"></i> Employee Details</h2></div><div class="modal-body"><div class="detail-section"><h3><i class="fas fa-user-circle"></i> Personal & Payroll</h3><div class="detail-section-grid compact-details"><div><strong>Firebase UID:</strong> <span id="detail-id"></span></div><div><strong>Name:</strong> <span id="detail-name"></span></div><div><strong>Phone:</strong> <span id="detail-phone"></span></div><div><strong>Aadhar:</strong> <span id="detail-aadhar"></span></div><div><strong>Joining Date:</strong> <span id="detail-joining-date"></span></div><div><strong>Base Salary:</strong> <span id="detail-base-salary"></span></div><div><strong>Present (Month):</strong> <span id="detail-present-days"></span></div><div><strong>Advances (Month):</strong> <span id="detail-advances" class="danger-text"></span></div><div><strong>Net Salary:</strong> <span id="detail-calculated-salary" class="success-text"></span></div></div></div><div class="detail-section"><h3><i class="fas fa-calendar-alt"></i> Attendance Calendar</h3><div class="calendar-widget"><div class="calendar-header"><button id="admin-cal-prev-month-btn">&lt;</button><h4 id="admin-cal-month-year-display"></h4><button id="admin-cal-next-month-btn">&gt;</button></div><div class="calendar-grid" id="admin-cal-days-grid"></div><div class="calendar-summary" id="admin-cal-summary"></div></div></div></div><div class="modal-actions"><button type="button" class="btn btn-primary" id="close-employee-details-modal">Close</button></div></div>
-        <div class="modal" id="advance-details-modal"><div class="modal-header"><h2><i class="fas fa-hand-holding-usd"></i> Manage Advance for <span id="adv-modal-name"></span></h2></div><div class="modal-body"><div class="advance-form-section"><h3><i class="fas fa-plus-circle"></i> Record New Advance</h3><form id="record-advance-form"><div class="input-group"><input type="number" id="advance-amount" required min="1"><label for="advance-amount">Amount (₹)</label></div><button type="submit" class="btn btn-primary btn-full-width">Record Advance</button></form></div><div class="advance-history-section"><h3><i class="fas fa-history"></i> Advance History (This Month)</h3><div class="table-responsive"><table class="simple-table"><thead><tr><th>Date</th><th>Amount (₹)</th></tr></thead><tbody id="adv-history-body"></tbody></table></div></div></div><div class="modal-actions"><button type="button" class="btn btn-secondary" id="close-advance-details-modal">Close</button></div></div>
+        <div class="modal" id="advance-details-modal"><div class="modal-header"><h2><i class="fas fa-hand-holding-usd"></i> Manage Advance for <span id="adv-modal-name"></span></h2></div><div class="modal-body"><div class="advance-modal-layout"><div class="advance-modal-column"><div class="advance-form-section card"><h3><i class="fas fa-plus-circle"></i> Record New Advance</h3><form id="record-advance-form"><div class="input-group"><input type="number" id="advance-amount" required min="1"><label for="advance-amount">Amount (₹)</label></div><div class="input-group"><input type="date" id="advance-date" required><label for="advance-date">Date</label></div><button type="submit" class="btn btn-primary btn-full-width">Record Advance</button></form></div><div class="advance-history-section card"><h3><i class="fas fa-history"></i> Advance History</h3><div class="table-responsive"><table class="simple-table"><thead><tr><th>Date</th><th>Amount (₹)</th></tr></thead><tbody id="adv-history-body"></tbody></table></div></div></div><div class="advance-modal-column"><div class="salary-summary-card card"><h3><i class="fas fa-file-invoice-dollar"></i> Salary Summary</h3><div class="summary-item"><span>Base Salary:</span><strong id="summary-base-salary">₹0.00</strong></div><div class="summary-item"><span>Earned Salary (Before Advance):</span><strong id="summary-earned-salary">₹0.00</strong></div><div class="summary-item"><span>Total Advances Given:</span><strong id="summary-total-advances" class="danger-text">- ₹0.00</strong></div><hr><div class="summary-item payable"><span>Net Payable Salary:</span><strong id="summary-net-payable">₹0.00</strong></div></div></div></div></div><div class="modal-actions"><button type="button" class="btn btn-secondary" id="close-advance-details-modal">Close</button></div></div>
         <div class="modal" id="personal-report-modal"><div class="modal-header"><h2><i class="fas fa-user-chart"></i> Yearly Report for <span id="personal-report-name"></span></h2></div><div class="modal-body"><div class="table-responsive"><table class="data-table personal-report-table"><thead><tr><th>Month</th><th>Present Days</th><th>Salary Earned</th><th>Advances</th><th>Net Payable</th></tr></thead><tbody id="personal-report-table-body"></tbody></table></div></div><div class="modal-actions"><button type="button" class="btn btn-primary" id="close-personal-report-modal">Close</button></div></div>
+        
+        <div class="modal" id="salary-status-modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-invoice-dollar"></i> Salary Status for <span id="status-modal-emp-name"></span></h2>
+            </div>
+            <div class="modal-body">
+                <div class="status-summary-card">
+                    <div class="summary-item"><span>Salary Earned (This Month):</span><strong id="status-modal-current-salary">₹0.00</strong></div>
+                    <div class="summary-item"><span>Previous Due Balance:</span><strong id="status-modal-prev-balance">₹0.00</strong></div>
+                    <div class="summary-item"><span>Advances (This Month):</span><strong id="status-modal-advances" class="danger-text">- ₹0.00</strong></div>
+                    <div class="summary-item"><span>Already Paid (This Month):</span><strong id="status-modal-paid" class="success-text">- ₹0.00</strong></div>
+                    <hr>
+                    <div class="summary-item payable"><span>Net Amount Due:</span><strong id="status-modal-total-due">₹0.00</strong></div>
+                </div>
+                
+                <div class="payment-section">
+                    <h3>Make a Payment</h3>
+                    <form id="make-payment-form" class="make-payment-form">
+                        <div class="input-group"><input type="number" id="payment-amount" required min="0" step="1"><label for="payment-amount">Amount to Pay (₹)</label></div>
+                        <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Confirm Payment</button>
+                    </form>
+                </div>
+
+                <div class="payment-section">
+                    <h3>Payment History (This Month)</h3>
+                    <ul id="payment-history-list"></ul>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="close-status-modal">Close</button>
+            </div>
+        </div>
+
         <div class="modal" id="message-modal"><div id="message-icon"></div><h2 id="message-title"></h2><p id="message-text"></p><div class="modal-actions"><button class="btn btn-primary" id="close-message-modal">OK</button></div></div>
     </div>
     
@@ -85,4 +135,3 @@
     <script src="reports.js"></script>
 </body>
 </html>
-
