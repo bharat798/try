@@ -1,45 +1,62 @@
 document.addEventListener('DOMContentLoaded', () => {
+    let allEmployees = [];
     let fullYearData = {};
+    let currentlyViewedEmployee = null;
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const formatDate = (d) => d ? (d.toDate ? d.toDate() : new Date(d)).toLocaleDateString('en-GB') : 'N/A';
+    const formatCurrency = (amount) => `₹${parseFloat(amount || 0).toLocaleString('en-IN')}`;
 
     document.addEventListener('loadReports', initializeReports);
 
     function initializeReports() {
         const yearSelector = document.getElementById('report-year-selector');
         const monthSelector = document.getElementById('report-month-selector');
-        const currentYear = new Date().getFullYear();
-        if (yearSelector.options.length > 0) { // Only fetch if not already initialized
-            fetchReportData(yearSelector.value);
+        if (yearSelector.options.length > 0) {
+            fetchReportData(yearSelector.value, monthSelector.value);
             return;
         }
-
-        for (let i = currentYear; i >= currentYear - 5; i--) {
+        const currentYear = new Date().getFullYear();
+        for (let i = currentYear; i >= currentYear - 2; i--) {
             yearSelector.innerHTML += `<option value="${i}">${i}</option>`;
         }
         monthSelector.value = new Date().getMonth();
 
-        yearSelector.addEventListener('change', () => fetchReportData(yearSelector.value));
+        const updateReport = () => fetchReportData(yearSelector.value, monthSelector.value);
+        yearSelector.addEventListener('change', updateReport);
         monthSelector.addEventListener('change', () => renderReport(monthSelector.value));
+        
         document.getElementById('report-list-container').addEventListener('click', (e) => {
-            if (e.target.classList.contains('view-personal-report-btn')) {
-                showPersonalReportModal(e.target.dataset.uid);
+            const targetRow = e.target.closest('.report-employee-item');
+            if (targetRow) {
+                showSalaryStatusModal(targetRow.dataset.uid);
             }
         });
-        document.getElementById('close-personal-report-modal').addEventListener('click', () => document.getElementById('modal-container').classList.remove('show'));
+
+        document.getElementById('close-status-modal').addEventListener('click', () => window.hideModals());
+        document.getElementById('make-payment-form').addEventListener('submit', handlePayment);
         
-        fetchReportData(currentYear);
+        updateReport();
     }
 
-    async function fetchReportData(year) {
+    async function fetchReportData(year, month) {
         document.getElementById('report-list-container').innerHTML = '<p>Loading report data...</p>';
-        const empSnap = await db.collection('employees').get();
-        const employees = empSnap.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
-        const start = new Date(year, 0, 1);
-        const end = new Date(year, 11, 31, 23, 59, 59);
+        
+        if (!allEmployees.length) {
+            const empSnap = await db.collection('employees').get();
+            allEmployees = empSnap.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
+        }
 
-        const attenSnap = await db.collection('attendance').where('timestamp', '>=', start).where('timestamp', '<=', end).get();
-        const advancesPromises = employees.map(emp => db.collection('employees').doc(emp.docId).collection('advances').where('date', '>=', start).where('date', '<=', end).get());
-        const allAdvancesSnapshots = await Promise.all(advancesPromises);
+        const startOfYear = new Date(year, 0, 1);
+        const endOfYear = new Date(year, 11, 31, 23, 59, 59);
+
+        const attenSnap = await db.collection('attendance').where('timestamp', '>=', startOfYear).where('timestamp', '<=', endOfYear).get();
+        
+        const dataPromises = allEmployees.map(emp => Promise.all([
+            db.collection('employees').doc(emp.docId).collection('advances').where('date', '>=', startOfYear).where('date', '<=', endOfYear).get(),
+            db.collection('employees').doc(emp.docId).collection('payments').where('datePaid', '>=', startOfYear).where('datePaid', '<=', endOfYear).get()
+        ]));
+
+        const allSubData = await Promise.all(dataPromises);
 
         const attendanceByUid = {};
         attenSnap.docs.forEach(doc => {
@@ -48,76 +65,124 @@ document.addEventListener('DOMContentLoaded', () => {
             attendanceByUid[data.userId].push(data.timestamp.toDate());
         });
 
-        const advancesByUid = {};
-        employees.forEach((emp, index) => {
-            advancesByUid[emp.uid] = allAdvancesSnapshots[index].docs.map(doc => ({ ...doc.data(), date: doc.data().date.toDate() }));
-        });
-        
         fullYearData = {};
-        employees.forEach(emp => {
-            fullYearData[emp.uid] = Array(12).fill(null).map((_, month) => {
-                const presentDays = (attendanceByUid[emp.uid] || []).filter(d => d.getMonth() === month).length;
-                const totalAdvances = (advancesByUid[emp.uid] || []).filter(d => d.date.getMonth() === month).reduce((sum, adv) => sum + adv.amount, 0);
+        allEmployees.forEach((emp, index) => {
+            const advances = allSubData[index][0].docs.map(d => ({...d.data(), date: d.data().date.toDate()}));
+            const payments = allSubData[index][1].docs.map(d => ({...d.data(), datePaid: d.data().datePaid.toDate()}));
+            
+            fullYearData[emp.uid] = Array(12).fill(null).map((_, m) => {
+                const presentDays = (attendanceByUid[emp.uid] || []).filter(d => d.getMonth() === m).length;
                 const earnedSalary = (emp.baseSalary / 30) * presentDays;
-                return {
-                    name: emp.name,
-                    presentDays,
-                    earnedSalary: Math.round(earnedSalary),
-                    totalAdvances,
-                    netPayable: Math.round(Math.max(0, earnedSalary - totalAdvances))
-                };
+                const totalAdvances = advances.filter(d => d.date.getMonth() === m).reduce((sum, adv) => sum + adv.amount, 0);
+                const totalPaid = payments.filter(d => d.datePaid.getMonth() === m).reduce((sum, p) => sum + p.amountPaid, 0);
+                return { uid: emp.uid, docId: emp.docId, name: emp.name, employeeId: emp.employeeId, earnedSalary, totalAdvances, totalPaid, paymentHistory: payments.filter(d => d.datePaid.getMonth() === m) };
             });
         });
-        renderReport(document.getElementById('report-month-selector').value);
+
+        renderReport(month);
     }
 
     function renderReport(month) {
         const container = document.getElementById('report-list-container');
-        let html = '<div class="table-responsive"><table class="data-table report-table"><thead><tr><th>Employee Name</th><th>Present Days</th><th>Earned Salary</th><th>Advances</th><th>Net Payable</th><th>Actions</th></tr></thead><tbody>';
-        let hasData = false;
-        for (const uid in fullYearData) {
-            const data = fullYearData[uid][month];
-            if (data && (data.presentDays > 0 || data.totalAdvances > 0)) {
-                hasData = true;
+        let html = '<ul class="report-employee-list">';
+        
+        if (allEmployees.length === 0) {
+            html += '<li class="report-employee-item-empty">No employees found.</li>';
+        } else {
+            allEmployees.forEach(emp => {
+                let previousDueBalance = 0;
+                for (let i = 0; i < month; i++) {
+                    const monthData = fullYearData[emp.uid][i];
+                    previousDueBalance += (monthData.earnedSalary - monthData.totalAdvances - monthData.totalPaid);
+                }
+                
+                const currentMonthData = fullYearData[emp.uid][month];
+                const netAmountDue = Math.max(0, currentMonthData.earnedSalary + previousDueBalance - currentMonthData.totalAdvances - currentMonthData.totalPaid);
+
+                currentMonthData.previousDueBalance = Math.max(0, previousDueBalance);
+                currentMonthData.netAmountDue = netAmountDue;
+
+                let statusBadge;
+                if (netAmountDue <= 0.01) { // Use a small threshold for floating point issues
+                    statusBadge = '<span class="status-badge status-paid">PAID</span>';
+                } else if (currentMonthData.totalPaid > 0 && netAmountDue > 0) {
+                    statusBadge = '<span class="status-badge status-partially-paid">PARTIALLY PAID</span>';
+                } else {
+                    statusBadge = '<span class="status-badge status-unpaid">UNPAID</span>';
+                }
+
                 html += `
-                    <tr>
-                        <td>${data.name}</td>
-                        <td>${data.presentDays}</td>
-                        <td>₹${data.earnedSalary.toLocaleString('en-IN')}</td>
-                        <td>₹${data.totalAdvances.toLocaleString('en-IN')}</td>
-                        <td><strong>₹${data.netPayable.toLocaleString('en-IN')}</strong></td>
-                        <td><a href="#" class="view-personal-report-btn" data-uid="${uid}">View Full Report</a></td>
-                    </tr>`;
-            }
+                    <li class="report-employee-item" data-uid="${emp.uid}">
+                        <div class="emp-info"><i class="fas fa-user-circle"></i><div><span class="emp-name">${emp.name}</span><span class="emp-id">ID: ${emp.employeeId || 'N/A'}</span></div></div>
+                        <div class="emp-salary-info"><strong class="emp-amount-due">${formatCurrency(netAmountDue)}</strong>${statusBadge}</div>
+                    </li>`;
+            });
         }
-        if (!hasData) {
-            html += '<tr><td colspan="6">No payroll data for this period.</td></tr>';
-        }
-        html += '</tbody></table></div>';
+        html += '</ul>';
         container.innerHTML = html;
     }
 
-    function showPersonalReportModal(uid) {
-        const empYearData = fullYearData[uid];
-        if (!empYearData) return;
+    function showSalaryStatusModal(uid) {
+        const month = document.getElementById('report-month-selector').value;
+        currentlyViewedEmployee = fullYearData[uid][month];
+        if (!currentlyViewedEmployee) return;
+
+        const emp = currentlyViewedEmployee;
+        document.getElementById('status-modal-emp-name').textContent = emp.name;
+        document.getElementById('status-modal-current-salary').textContent = formatCurrency(emp.earnedSalary);
+        document.getElementById('status-modal-prev-balance').textContent = formatCurrency(emp.previousDueBalance);
+        document.getElementById('status-modal-advances').textContent = `- ${formatCurrency(emp.totalAdvances)}`;
+        document.getElementById('status-modal-paid').textContent = `- ${formatCurrency(emp.totalPaid)}`;
+        document.getElementById('status-modal-total-due').textContent = formatCurrency(emp.netAmountDue);
         
-        document.getElementById('personal-report-name').textContent = empYearData[0].name;
-        const tableBody = document.getElementById('personal-report-table-body');
-        tableBody.innerHTML = empYearData.map((monthData, month) => {
-            if (monthData.presentDays > 0 || monthData.totalAdvances > 0) {
-                return `
-                    <tr>
-                        <td>${months[month]}</td>
-                        <td>${monthData.presentDays}</td>
-                        <td>₹${monthData.earnedSalary.toLocaleString('en-IN')}</td>
-                        <td>₹${monthData.totalAdvances.toLocaleString('en-IN')}</td>
-                        <td><strong>₹${monthData.netPayable.toLocaleString('en-IN')}</strong></td>
-                    </tr>`;
-            }
-            return '';
-        }).join('');
+        const paymentInput = document.getElementById('payment-amount');
+        paymentInput.value = Math.round(emp.netAmountDue > 0 ? emp.netAmountDue : 0);
+        paymentInput.max = Math.round(emp.netAmountDue > 0 ? emp.netAmountDue : 0);
+
+        const historyList = document.getElementById('payment-history-list');
+        if (emp.paymentHistory.length === 0) {
+            historyList.innerHTML = '<li>No payments made this month.</li>';
+        } else {
+            historyList.innerHTML = emp.paymentHistory.map(p => `<li><span class="date">${formatDate(p.datePaid)}</span> <strong class="amount">${formatCurrency(p.amountPaid)}</strong></li>`).join('');
+        }
         
-        document.getElementById('modal-container').classList.add('show');
-        document.getElementById('personal-report-modal').style.display = 'block';
+        window.showModal(document.getElementById('salary-status-modal'));
+    }
+
+    async function handlePayment(e) {
+        e.preventDefault();
+        if (!currentlyViewedEmployee) return;
+        
+        const amountToPay = parseFloat(document.getElementById('payment-amount').value);
+        if (isNaN(amountToPay) || amountToPay <= 0) {
+            return window.showMessage("Error", "Please enter a valid amount.", false);
+        }
+
+        const confirmBtn = e.target.querySelector('button[type="submit"]');
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        
+        try {
+            await db.collection('employees').doc(currentlyViewedEmployee.docId).collection('payments').add({
+                amountPaid: amountToPay,
+                datePaid: firebase.firestore.Timestamp.now(),
+                month: parseInt(document.getElementById('report-month-selector').value),
+                year: parseInt(document.getElementById('report-year-selector').value)
+            });
+
+            window.hideModals(); // Pehle modal hide karein
+            window.showMessage("Success", "Payment confirmed successfully!", true); // Phir message dikhayein
+            
+            const yearSelector = document.getElementById('report-year-selector');
+            const monthSelector = document.getElementById('report-month-selector');
+            fetchReportData(yearSelector.value, monthSelector.value);
+
+        } catch (error) {
+            console.error("Payment failed:", error);
+            window.showMessage("Error", `Payment failed: ${error.message}`, false);
+        } finally {
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = '<i class="fas fa-check"></i> Confirm Payment';
+        }
     }
 });
