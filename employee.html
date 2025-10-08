@@ -24,6 +24,7 @@
                 <ul>
                     <li><a href="#" class="nav-link active" data-view="details"><i class="fas fa-user-alt"></i> Employee Details</a></li>
                     <li><a href="#" class="nav-link" data-view="attendance"><i class="fas fa-fingerprint"></i> Attendance</a></li>
+                    <li><a href="#" class="nav-link" data-view="transactions"><i class="fas fa-history"></i> Transaction History</a></li>
                 </ul>
             </nav>
         </aside>
@@ -54,8 +55,27 @@
                         <h4><i class="fas fa-wallet"></i> Salary Details</h4>
                         <div class="info-item"><i class="fas fa-sack-dollar"></i><div><span>Base Salary</span><strong id="user-base-salary-display">N/A</strong></div></div>
                         <div class="info-item advances-item"><i class="fas fa-hand-holding-usd"></i><div><span>Advances This Month</span><strong id="user-advances-display">N/A</strong></div></div>
+                        <div class="info-item"><i class="fas fa-money-bill-wave"></i><div><span>Net Payable Salary</span><strong id="user-net-payable-display" class="success-text">N/A</strong></div></div>
                     </div>
                 </div>
+
+                <div class="calendar-container">
+                    <div class="card">
+                        <div class="detail-section">
+                            <h3><i class="fas fa-calendar-alt"></i> Attendance Calendar</h3>
+                            <div class="calendar-widget">
+                                <div class="calendar-header">
+                                    <button id="employee-cal-prev-month-btn">&lt;</button>
+                                    <h4 id="employee-cal-month-year-display"></h4>
+                                    <button id="employee-cal-next-month-btn">&gt;</button>
+                                </div>
+                                <div class="calendar-grid" id="employee-cal-days-grid"></div>
+                                <div class="calendar-summary" id="employee-cal-summary"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <div id="attendance-view" class="content-view">
@@ -66,6 +86,39 @@
                     <div class="card-body" style="flex-direction: row; justify-content: flex-start; gap: 20px; padding: 20px;">
                         <button id="register-passkey-btn" class="btn btn-primary"><i class="fas fa-id-card"></i> Register Fingerprint/Face ID</button>
                         <button id="mark-attendance-btn" class="btn btn-secondary" style="background-color: #28a745; color: white;"><i class="fas fa-calendar-check"></i> Mark Today's Attendance</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="transactions-view" class="content-view">
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> Transaction History</h3>
+                        <div class="filters">
+                            <select id="transaction-year-filter">
+                                <option value="all">All Years</option>
+                            </select>
+                            <select id="transaction-month-filter">
+                                <option value="all">All Months</option>
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6">July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="transaction-list">
+                            <p>Loading transaction history...</p>
+                        </div>
                     </div>
                 </div>
             </div>
