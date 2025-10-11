@@ -82,23 +82,30 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('user-phone-display').textContent = employeeData.phone;
             document.getElementById('user-aadhar-display').textContent = employeeData.aadhar;
             document.getElementById('user-base-salary-display').textContent = `₹${employeeData.baseSalary.toLocaleString()}`;
-
+            
+            
             const today = new Date();
             const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
             
             const advancesSnapshot = await db.collection('employees').doc(user.uid).collection('advances').where('date', '>=', startOfMonth).get();
             let totalAdvances = 0;
             advancesSnapshot.forEach(doc => { totalAdvances += doc.data().amount; });
-            document.getElementById('user-advances-display').textContent = `- ₹${totalAdvances.toLocaleString()}`;
+            document.getElementById('user-advances-display').textContent = `- ${formatCurrency(totalAdvances)}`;
             
-            const attendanceSnapshot = await db.collection('attendance').where('userId', '==', user.uid).where('timestamp', '>=', startOfMonth).where('timestamp', '<=', endOfMonth).get();
+            const attendanceSnapshot = await db.collection('attendance').where('userId', '==', user.uid).where('timestamp', '>=', startOfMonth).get();
             const presentDays = attendanceSnapshot.size;
             document.getElementById('days-present-display').textContent = presentDays;
             document.getElementById('days-absent-display').textContent = 0;
 
-            const netPayable = Math.max(0, (employeeData.baseSalary / 30) * presentDays - totalAdvances);
-            document.getElementById('user-net-payable-display').textContent = `₹${Math.round(netPayable).toLocaleString()}`;
+            // YAHAN BADLAV KIYA GAYA HAI: Already Paid amount fetch aur calculate karein
+            const paymentsSnapshot = await db.collection('employees').doc(user.uid).collection('payments').where('datePaid', '>=', startOfMonth).get();
+            let totalPaid = 0;
+            paymentsSnapshot.forEach(doc => { totalPaid += doc.data().amountPaid; });
+            document.getElementById('user-already-paid-display').textContent = `- ${formatCurrency(totalPaid)}`;
+
+            const earnedSalary = (employeeData.baseSalary / 30) * presentDays;
+            const netPayable = Math.max(0, earnedSalary - totalAdvances - totalPaid);
+            document.getElementById('user-net-payable-display').textContent = formatCurrency(netPayable);
 
             const fullHistorySnap = await db.collection('attendance').where('userId', '==', user.uid).get();
             const history = fullHistorySnap.docs.map(doc => ({ Timestamp: doc.data().timestamp.toDate() }));
@@ -115,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("An error occurred while loading your data.");
         }
     };
+            
 
     document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
     document.getElementById('register-passkey-btn').addEventListener('click', registerPasskey);
@@ -355,3 +363,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+
+
+
+
+
+
+
+
+
