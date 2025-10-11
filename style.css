@@ -2650,38 +2650,36 @@ body {
         left: 0;
         top: 0;
         height: 100%;
-        z-index: 1000;
-        transform: translateX(-100%); /* Hide sidebar off-screen */
+        z-index: 1001; /* Sabse upar dikhega */
+        transform: translateX(-100%);
         transition: transform 0.3s ease-in-out;
         box-shadow: 3px 0 10px rgba(0,0,0,0.2);
     }
 
     .main-content {
         width: 100%;
-        padding: 20px;
         margin-left: 0;
     }
 
-    .dashboard-header {
-        position: relative;
-    }
-
-    /* This class will be added by JavaScript to show the sidebar */
+    /* Is class ko JS add karega slider dikhane ke liye */
     .dashboard-wrapper.sidebar-open .sidebar {
-        transform: translateX(0); /* Show sidebar */
+        transform: translateX(0);
     }
     
     .menu-toggle-btn {
-        display: block; /* Show the menu button */
+        display: block; /* Menu button dikhayega */
     }
     
-    /* Black overlay when menu is open */
+    /* Jab menu khula ho to peeche ka content dhundhla ho jaayega */
     .dashboard-wrapper.sidebar-open::after {
         content: '';
         position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
         background: rgba(0, 0, 0, 0.5);
-        z-index: 999; /* Below sidebar, above content */
+        z-index: 1000; /* Sidebar ke theek peeche */
     }
 }
 
@@ -2993,4 +2991,5 @@ body {
         flex: 1;
     }
 }
+
 
