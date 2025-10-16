@@ -45,14 +45,13 @@ document.addEventListener('DOMContentLoaded', () => {
         showModal(messageModal);
     };
 
-    // YAHAN BADLAV KIYA GAYA HAI: showMessage function ko global banaya gaya hai
     window.showMessage = showMessage;
     window.showModal = showModal;
     window.hideModals = hideModals;
 
     function initializeAdminDashboard() {
         initializeNavigation();
-        loadDashboardOverview();
+        loadDashboardOverview(); // Initial quick load
         initializeModalsAndForms();
         initializeResponsiveMenu();
     }
@@ -98,20 +97,27 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-
-    async function fetchDataAndProcess() {
+    
+    // ## OPTIMIZATION: Yeh function ab saara data ek baar me laayega ##
+    async function fetchAllEmployeeData() {
         const empSnap = await db.collection('employees').get();
         const employees = empSnap.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
-        const today = new Date();
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        
+
         const dataPromises = employees.map(async emp => {
-            const attenSnap = await db.collection('attendance').where('userId', '==', emp.uid).where('timestamp', '>=', startOfMonth).get();
-            const advSnap = await db.collection('employees').doc(emp.docId).collection('advances').where('date', '>=', startOfMonth).get();
-            const presentDays = attenSnap.size;
-            const totalAdvances = advSnap.docs.reduce((sum, doc) => sum + doc.data().amount, 0);
-            const netPayable = Math.max(0, (emp.baseSalary / 30) * presentDays - totalAdvances);
-            return { ...emp, presentDays, totalAdvances, netPayable: Math.round(netPayable) };
+            const employeeDocRef = db.collection('employees').doc(emp.docId);
+            
+            // Sabhi sub-collections ka data ek saath fetch hoga
+            const [attenSnap, advSnap, paySnap] = await Promise.all([
+                db.collection('attendance').where('userId', '==', emp.uid).get(),
+                employeeDocRef.collection('advances').get(),
+                employeeDocRef.collection('payments').get()
+            ]);
+
+            const allAttendance = attenSnap.docs.map(d => ({ Timestamp: d.data().timestamp.toDate() }));
+            const allAdvances = advSnap.docs.map(d => ({ ...d.data(), date: d.data().date.toDate() }));
+            const allPayments = paySnap.docs.map(d => ({ ...d.data(), datePaid: d.data().datePaid.toDate() }));
+            
+            return { ...emp, allAttendance, allAdvances, allPayments };
         });
 
         allEmployeeData = await Promise.all(dataPromises);
@@ -119,21 +125,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadDashboardOverview() {
-        await fetchDataAndProcess();
+        // Dashboard ke liye halka-fulka data
+        const empSnap = await db.collection('employees').get();
         const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
         const todayAtten = await db.collection('attendance').where('timestamp', '>=', todayStart).get();
-        const totalSalary = allEmployeeData.reduce((sum, e) => sum + e.baseSalary, 0);
+        const totalSalary = empSnap.docs.reduce((sum, doc) => sum + doc.data().baseSalary, 0);
+        
         document.getElementById('stats-grid-container').innerHTML = `
-            <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-info"><h3>Total Employees</h3><p>${allEmployeeData.length}</p></div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-info"><h3>Total Employees</h3><p>${empSnap.size}</p></div></div>
             <div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-check"></i></div><div class="stat-info"><h3>Today's Check-ins</h3><p>${todayAtten.size}</p></div></div>
-            <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-clock"></i></div><div class="stat-info"><h3>Not Checked In</h3><p>${allEmployeeData.length - todayAtten.size}</p></div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-clock"></i></div><div class="stat-info"><h3>Not Checked In</h3><p>${empSnap.size - todayAtten.size}</p></div></div>
             <div class="stat-card"><div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div><div class="stat-info"><h3>Total Monthly Salary</h3><p>₹${totalSalary.toLocaleString('en-IN')}</p></div></div>
         `;
     }
 
     async function loadManageEmployees() {
-        await fetchDataAndProcess();
         const tableBody = document.getElementById('admin-table-body');
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading employee data...</td></tr>';
+        
+        await fetchAllEmployeeData(); // Yahan saara data load hoga
+        
         tableBody.innerHTML = allEmployeeData.map(emp => `
             <tr>
                 <td>${emp.employeeId || 'N/A'}</td>
@@ -146,6 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="btn btn-danger btn-small delete-employee-btn" data-docid="${emp.docId}" data-name="${emp.name}"><i class="fas fa-trash"></i> Delete</button>
                 </td>
             </tr>`).join('');
+            
         tableBody.querySelectorAll('.view-details-btn').forEach(btn => btn.addEventListener('click', (e) => showEmployeeDetailsModal(e.currentTarget.dataset.uid)));
         tableBody.querySelectorAll('.delete-employee-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -202,10 +214,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     async function loadSalaryAdvances() {
-        await fetchDataAndProcess();
+        if (allEmployeeData.length === 0) {
+            await fetchAllEmployeeData();
+        }
         const list = document.getElementById('employee-advance-list');
-        list.innerHTML = allEmployeeData.map(emp => `<li data-docid="${emp.docId}">${emp.name}</li>`).join('');
-        list.querySelectorAll('li').forEach(li => li.addEventListener('click', e => showAdvanceDetailsModal(e.currentTarget.dataset.docid)));
+        list.innerHTML = allEmployeeData.map(emp => `<li data-uid="${emp.uid}">${emp.name}</li>`).join('');
+        list.querySelectorAll('li').forEach(li => li.addEventListener('click', e => showAdvanceDetailsModal(e.currentTarget.dataset.uid)));
     }
 
     function initializeModalsAndForms() {
@@ -266,15 +280,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 showMessage("Success", "Advance recorded.", true);
                 e.target.reset();
-                showAdvanceDetailsModal(currentlyViewedEmployee.docId);
+                // Data ko refresh karna
+                await fetchAllEmployeeData();
+                showAdvanceDetailsModal(currentlyViewedEmployee.uid);
             } catch (error) {
                 showMessage("Error", `Failed to record advance: ${error.message}`, false);
             }
         });
     }
 
-    async function showAdvanceDetailsModal(docId) {
-        currentlyViewedEmployee = allEmployeeData.find(e => e.docId === docId);
+    function showAdvanceDetailsModal(uid) {
+        currentlyViewedEmployee = allEmployeeData.find(e => e.uid === uid);
         if (!currentlyViewedEmployee) return;
 
         const emp = currentlyViewedEmployee;
@@ -282,35 +298,43 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('advance-date').valueAsDate = new Date();
 
         const today = new Date();
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
         
-        const attenSnap = await db.collection('attendance').where('userId', '==', emp.uid).where('timestamp', '>=', startOfMonth).get();
-        const presentDays = attenSnap.size;
+        const presentDays = emp.allAttendance.filter(a => new Date(a.Timestamp).getMonth() === currentMonth && new Date(a.Timestamp).getFullYear() === currentYear).length;
+        
+        const advancesThisMonth = emp.allAdvances.filter(adv => adv.date.getMonth() === currentMonth && adv.date.getFullYear() === currentYear);
+        const totalAdvances = advancesThisMonth.reduce((sum, adv) => sum + adv.amount, 0);
 
-        const advSnap = await db.collection('employees').doc(docId).collection('advances').where('date', '>=', startOfMonth).orderBy('date', 'desc').get();
-        const totalAdvances = advSnap.docs.reduce((sum, doc) => sum + doc.data().amount, 0);
+        const paymentsThisMonth = emp.allPayments.filter(p => p.datePaid.getMonth() === currentMonth && p.datePaid.getFullYear() === currentYear);
+        const totalPaid = paymentsThisMonth.reduce((sum, p) => sum + p.amountPaid, 0);
 
         const earnedSalary = (emp.baseSalary / 30) * presentDays;
-        const netPayable = Math.max(0, earnedSalary - totalAdvances);
+        const netPayable = Math.max(0, earnedSalary - totalAdvances - totalPaid);
 
         document.getElementById('summary-base-salary').textContent = formatCurrency(emp.baseSalary);
         document.getElementById('summary-earned-salary').textContent = formatCurrency(earnedSalary);
         document.getElementById('summary-total-advances').textContent = `- ${formatCurrency(totalAdvances)}`;
+        document.getElementById('summary-already-paid').textContent = `- ${formatCurrency(totalPaid)}`;
         document.getElementById('summary-net-payable').textContent = formatCurrency(netPayable);
 
         const historyBody = document.getElementById('adv-history-body');
-        if (advSnap.empty) { 
+        if (advancesThisMonth.length === 0) { 
             historyBody.innerHTML = '<tr><td colspan="2" style="text-align: center;">No advances recorded this month.</td></tr>'; 
         } else {
-            historyBody.innerHTML = advSnap.docs.map(doc => `<tr><td>${formatDate(doc.data().date)}</td><td>${formatCurrency(doc.data().amount)}</td></tr>`).join('');
+            advancesThisMonth.sort((a,b) => b.date - a.date); // Sort by most recent
+            historyBody.innerHTML = advancesThisMonth.map(adv => `<tr><td>${formatDate(adv.date)}</td><td>${formatCurrency(adv.amount)}</td></tr>`).join('');
         }
         
         showModal(document.getElementById('advance-details-modal'));
     }
 
+    // ## OPTIMIZATION: Yeh function ab database call nahi karega ##
     async function showEmployeeDetailsModal(uid) {
         currentlyViewedEmployee = allEmployeeData.find(e => e.uid === uid);
         const emp = currentlyViewedEmployee;
+
+        // Basic details render karna
         document.getElementById('detail-id').textContent = emp.employeeId || emp.uid;
         document.getElementById('detail-name').textContent = emp.name;
         document.getElementById('detail-phone').textContent = emp.phone;
@@ -318,44 +342,121 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('detail-joining-date').textContent = formatDate(emp.joiningDate);
         document.getElementById('detail-base-salary').textContent = `₹${emp.baseSalary.toLocaleString('en-IN')}`;
         
+        // Memory se data filter karna
         const today = new Date();
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        const attenSnapModal = await db.collection('attendance').where('userId', '==', uid).where('timestamp', '>=', startOfMonth).get();
-        const advSnapModal = await db.collection('employees').doc(emp.docId).collection('advances').where('date', '>=', startOfMonth).get();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
         
-        const presentDays = attenSnapModal.size;
-        const totalAdvances = advSnapModal.docs.reduce((sum, doc) => sum + doc.data().amount, 0);
-        const netPayable = Math.max(0, (emp.baseSalary / 30) * presentDays - totalAdvances);
+        const presentDays = emp.allAttendance.filter(a => new Date(a.Timestamp).getMonth() === currentMonth && new Date(a.Timestamp).getFullYear() === currentYear).length;
+        const totalAdvances = emp.allAdvances.filter(adv => adv.date.getMonth() === currentMonth && adv.date.getFullYear() === currentYear).reduce((sum, adv) => sum + adv.amount, 0);
+        const totalPaid = emp.allPayments.filter(p => p.datePaid.getMonth() === currentMonth && p.datePaid.getFullYear() === currentYear).reduce((sum, p) => sum + p.amountPaid, 0);
+        
+        const netPayable = Math.max(0, (emp.baseSalary / 30) * presentDays - totalAdvances - totalPaid);
 
+        // Details update karna
         document.getElementById('detail-present-days').textContent = presentDays;
-        document.getElementById('detail-advances').textContent = `- ₹${totalAdvances.toLocaleString('en-IN')}`;
-        document.getElementById('detail-calculated-salary').textContent = `₹${Math.round(netPayable).toLocaleString('en-IN')}`;
+        document.getElementById('detail-advances').textContent = `- ${formatCurrency(totalAdvances)}`;
+        document.getElementById('detail-already-paid').textContent = `- ${formatCurrency(totalPaid)}`;
+        document.getElementById('detail-calculated-salary').textContent = formatCurrency(netPayable);
         
-        const fullHistorySnap = await db.collection('attendance').where('userId', '==', uid).get();
-        const history = fullHistorySnap.docs.map(doc => ({ Timestamp: doc.data().timestamp.toDate() }));
-        
+        // Calendar update karna
         calendarDate = new Date();
-        const updateCalendar = () => generateCalendar(calendarDate.getFullYear(), calendarDate.getMonth(), history, 'admin');
+        const updateCalendar = () => generateCalendar(calendarDate.getFullYear(), calendarDate.getMonth(), emp.allAttendance, 'admin', emp.joiningDate);
         document.getElementById('admin-cal-prev-month-btn').onclick = () => { calendarDate.setMonth(calendarDate.getMonth() - 1); updateCalendar(); };
         document.getElementById('admin-cal-next-month-btn').onclick = () => { calendarDate.setMonth(calendarDate.getMonth() + 1); updateCalendar(); };
         updateCalendar();
         
+        // Admin dwara attendance mark karne ka logic
+        const attendanceBtn = document.getElementById('admin-mark-attendance-btn');
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const todayEnd = new Date();
+        todayEnd.setHours(23, 59, 59, 999);
+
+        const hasMarkedToday = emp.allAttendance.some(a => {
+            const attenDate = new Date(a.Timestamp);
+            return attenDate >= todayStart && attenDate <= todayEnd;
+        });
+
+        if (hasMarkedToday) {
+            attendanceBtn.disabled = true;
+            attendanceBtn.innerHTML = '<i class="fas fa-check-double"></i> Marked Today';
+        } else {
+            attendanceBtn.disabled = false;
+            attendanceBtn.innerHTML = "<i class='fas fa-calendar-check'></i> Mark Today's Attendance";
+        }
+
+        attendanceBtn.onclick = async () => {
+            attendanceBtn.disabled = true;
+            attendanceBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Marking...`;
+            try {
+                await db.collection('attendance').add({
+                    userId: emp.uid,
+                    name: emp.name,
+                    email: emp.email,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showMessage("Success", `${emp.name}'s attendance marked successfully.`, true);
+                attendanceBtn.innerHTML = '<i class="fas fa-check-double"></i> Marked Today';
+                // Data refresh karke modal dobara dikhana
+                await fetchAllEmployeeData();
+                showEmployeeDetailsModal(uid); 
+            } catch (error) {
+                showMessage("Error", "Failed to mark attendance.", false);
+                console.error("Admin marking error:", error);
+                attendanceBtn.disabled = false;
+                attendanceBtn.innerHTML = "<i class='fas fa-calendar-check'></i> Mark Today's Attendance";
+            }
+        };
+
         showModal(document.getElementById('employee-details-modal'));
     }
     
-    function generateCalendar(year, month, history, prefix) {
+    function generateCalendar(year, month, history, prefix, joiningDate) {
         const grid = document.getElementById(`${prefix}-cal-days-grid`);
-        document.getElementById(`${prefix}-cal-month-year-display`).textContent = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
+        const monthDisplay = document.getElementById(`${prefix}-cal-month-year-display`);
+        const summary = document.getElementById(`${prefix}-cal-summary`);
+
+        if (!grid || !monthDisplay || !summary) return;
+
+        monthDisplay.textContent = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
         grid.innerHTML = ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => `<div class="calendar-day-name">${d}</div>`).join('');
+        
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const firstDay = new Date(year, month, 1).getDay();
+        
         grid.innerHTML += Array(firstDay).fill('<div class="calendar-date empty"></div>').join('');
-        for (let day = 1; day <= daysInMonth; day++) {
-            const date = new Date(year, month, day).setHours(0,0,0,0);
-            const isPresent = history.some(r => new Date(r.Timestamp).setHours(0,0,0,0) === date);
-            grid.innerHTML += `<div class="calendar-date ${isPresent ? 'present-day' : ''}">${day}</div>`;
+        
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
+        const joiningDateObj = joiningDate ? (joiningDate.toDate ? joiningDate.toDate() : new Date(joiningDate)) : null;
+        if (joiningDateObj) {
+            joiningDateObj.setHours(0,0,0,0);
         }
+
+        let absentCount = 0;
         const presentCount = history.filter(r => new Date(r.Timestamp).getFullYear() === year && new Date(r.Timestamp).getMonth() === month).length;
-        document.getElementById(`${prefix}-cal-summary`).innerHTML = `<div class="summary-item"><i class="fas fa-check-circle present-icon"></i> Present: <strong>${presentCount} days</strong></div>`;
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(year, month, day);
+            date.setHours(0,0,0,0);
+            
+            const isPresent = history.some(r => new Date(r.Timestamp).setHours(0,0,0,0) === date.getTime());
+            
+            let dayClass = '';
+            if (isPresent) {
+                dayClass = 'present-day';
+            } else if (date < today && (!joiningDateObj || date >= joiningDateObj)) {
+                dayClass = 'absent-day';
+                absentCount++;
+            }
+            grid.innerHTML += `<div class="calendar-date ${dayClass}">${day}</div>`;
+        }
+        
+        summary.innerHTML = `
+            <div class="summary-item"><i class="fas fa-check-circle present-icon"></i> Present: <strong>${presentCount} days</strong></div>
+            <div class="summary-item"><i class="fas fa-times-circle absent-icon"></i> Absent: <strong>${absentCount} days</strong></div>
+        `;
     }
 });
