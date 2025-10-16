@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.replace('index.html');
         }
     });
+
     const formatDate = (d) => d ? (d.toDate ? d.toDate() : new Date(d)).toLocaleDateString('en-GB') : 'N/A';
     const formatCurrency = (amount) => `₹${parseFloat(amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -459,4 +460,3 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 });
-
