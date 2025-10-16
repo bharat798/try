@@ -2991,8 +2991,6 @@ body {
         flex: 1;
     }
 }
-
-
 /* ===== Styles for Absent Days in Calendar (ADD AT END) ===== */
 
 .calendar-date.absent-day {
@@ -3005,6 +3003,7 @@ body {
 .calendar-summary .absent-icon {
     color: #b91c1c; /* Gehra Laal Rang */
 }
+
 
 
 
