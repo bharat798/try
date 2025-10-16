@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let calendarDate = new Date();
     let currentUserUid = null;
 
-    // --- UTILITY FUNCTIONS (Yahan naya function add kiya gaya hai) ---
     const formatDate = (d) => d ? (d.toDate ? d.toDate() : new Date(d)).toLocaleDateString('en-GB') : 'N/A';
     const formatCurrency = (amount) => `₹${parseFloat(amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -75,6 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return auth.signOut();
             }
             const employeeData = employeeDoc.data();
+            const joiningDate = employeeData.joiningDate ? employeeData.joiningDate.toDate() : null;
+
             document.getElementById('sidebar-user-name').textContent = employeeData.name;
             const initial = employeeData.name ? employeeData.name.charAt(0).toUpperCase() : '?';
             document.getElementById('sidebar-initials-text').textContent = initial;
@@ -82,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('user-phone-display').textContent = employeeData.phone;
             document.getElementById('user-aadhar-display').textContent = employeeData.aadhar;
             document.getElementById('user-base-salary-display').textContent = `₹${employeeData.baseSalary.toLocaleString()}`;
-            
             
             const today = new Date();
             const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -95,9 +95,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const attendanceSnapshot = await db.collection('attendance').where('userId', '==', user.uid).where('timestamp', '>=', startOfMonth).get();
             const presentDays = attendanceSnapshot.size;
             document.getElementById('days-present-display').textContent = presentDays;
-            document.getElementById('days-absent-display').textContent = 0;
+            
+            let absentDays = 0;
+            const todayDate = today.getDate();
+            const presentDates = new Set(attendanceSnapshot.docs.map(doc => doc.data().timestamp.toDate().getDate()));
+            
+            const monthStartDate = joiningDate && joiningDate.getMonth() === today.getMonth() && joiningDate.getFullYear() === today.getFullYear() 
+                ? joiningDate.getDate() 
+                : 1;
 
-            // YAHAN BADLAV KIYA GAYA HAI: Already Paid amount fetch aur calculate karein
+            for (let i = monthStartDate; i < todayDate; i++) {
+                if (!presentDates.has(i)) {
+                    absentDays++;
+                }
+            }
+            document.getElementById('days-absent-display').textContent = absentDays;
+
             const paymentsSnapshot = await db.collection('employees').doc(user.uid).collection('payments').where('datePaid', '>=', startOfMonth).get();
             let totalPaid = 0;
             paymentsSnapshot.forEach(doc => { totalPaid += doc.data().amountPaid; });
@@ -111,7 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const history = fullHistorySnap.docs.map(doc => ({ Timestamp: doc.data().timestamp.toDate() }));
             
             calendarDate = new Date();
-            const updateCalendar = () => generateCalendar(calendarDate.getFullYear(), calendarDate.getMonth(), history, 'employee');
+            // Joining date ko calendar function mein pass kiya gaya hai
+            const updateCalendar = () => generateCalendar(calendarDate.getFullYear(), calendarDate.getMonth(), history, 'employee', employeeData.joiningDate);
             document.getElementById('employee-cal-prev-month-btn').onclick = () => { calendarDate.setMonth(calendarDate.getMonth() - 1); updateCalendar(); };
             document.getElementById('employee-cal-next-month-btn').onclick = () => { calendarDate.setMonth(calendarDate.getMonth() + 1); updateCalendar(); };
             updateCalendar();
@@ -123,12 +137,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
             
-
     document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
     document.getElementById('register-passkey-btn').addEventListener('click', registerPasskey);
     document.getElementById('mark-attendance-btn').addEventListener('click', markAttendance);
 
-    function generateCalendar(year, month, history, prefix) {
+    function generateCalendar(year, month, history, prefix, joiningDate) {
         const grid = document.getElementById(`${prefix}-cal-days-grid`);
         const monthDisplay = document.getElementById(`${prefix}-cal-month-year-display`);
         const summary = document.getElementById(`${prefix}-cal-summary`);
@@ -143,14 +156,40 @@ document.addEventListener('DOMContentLoaded', () => {
         
         grid.innerHTML += Array(firstDay).fill('<div class="calendar-date empty"></div>').join('');
         
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
+        // Joining date ko saaf format mein convert kiya gaya
+        const joiningDateObj = joiningDate ? (joiningDate.toDate ? joiningDate.toDate() : new Date(joiningDate)) : null;
+        if (joiningDateObj) {
+            joiningDateObj.setHours(0,0,0,0);
+        }
+
+        let absentCount = 0;
+        const presentCount = history.filter(r => new Date(r.Timestamp).getFullYear() === year && new Date(r.Timestamp).getMonth() === month).length;
+
         for (let day = 1; day <= daysInMonth; day++) {
-            const date = new Date(year, month, day).setHours(0,0,0,0);
-            const isPresent = history.some(r => new Date(r.Timestamp).setHours(0,0,0,0) === date);
-            grid.innerHTML += `<div class="calendar-date ${isPresent ? 'present-day' : ''}">${day}</div>`;
+            const date = new Date(year, month, day);
+            date.setHours(0,0,0,0);
+            
+            const isPresent = history.some(r => new Date(r.Timestamp).setHours(0,0,0,0) === date.getTime());
+            
+            let dayClass = '';
+            if (isPresent) {
+                dayClass = 'present-day';
+            } else if (date < today && (!joiningDateObj || date >= joiningDateObj)) { 
+                // Yahan check kiya gaya hai ki din joining date ke baad ka ho
+                dayClass = 'absent-day';
+                absentCount++;
+            }
+            grid.innerHTML += `<div class="calendar-date ${dayClass}">${day}</div>`;
         }
         
-        const presentCount = history.filter(r => new Date(r.Timestamp).getFullYear() === year && new Date(r.Timestamp).getMonth() === month).length;
-        summary.innerHTML = `<div class="summary-item"><i class="fas fa-check-circle present-icon"></i> Present: <strong>${presentCount} days</strong></div>`;
+        // Summary mein absent count joda gaya
+        summary.innerHTML = `
+            <div class="summary-item"><i class="fas fa-check-circle present-icon"></i> Present: <strong>${presentCount} days</strong></div>
+            <div class="summary-item"><i class="fas fa-times-circle absent-icon"></i> Absent: <strong>${absentCount} days</strong></div>
+        `;
     }
 
     function bufferToBase64URL(buffer) {
@@ -307,8 +346,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     startFilter = new Date(parseInt(year), 0, 1);
                     endFilter = new Date(parseInt(year), 11, 31, 23, 59, 59);
                 }
-            } else if (month !== 'all') { // All years, but specific month
-                // This query is complex and often requires multiple queries, so we'll filter client-side for this case
+            } else if (month !== 'all') { 
+                // Client-side filter for this case
             }
 
             if (startFilter) {
@@ -324,8 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let transactions = [];
             advancesSnap.docs.forEach(doc => transactions.push({ type: 'advance', date: doc.data().date.toDate(), amount: doc.data().amount }));
             paymentsSnap.docs.forEach(doc => transactions.push({ type: 'payment', date: doc.data().datePaid.toDate(), amount: doc.data().amountPaid }));
-
-            // Client-side filter if 'all years' and a specific month is chosen
+            
             if (year === 'all' && month !== 'all') {
                 transactions = transactions.filter(tx => tx.date.getMonth() === parseInt(month));
             }
@@ -363,13 +401,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
-
-
-
-
-
-
-
-
-
-
