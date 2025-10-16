@@ -41,8 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchReportData(year, month) {
         document.getElementById('report-list-container').innerHTML = '<p>Loading report data...</p>';
         
-        if (!allEmployees.length) {
+        // Yahan cache check karein taaki baar baar fetch na ho
+        if (allEmployees.length === 0) {
             const empSnap = await db.collection('employees').get();
+            // Yahan `profileImageUrl` ko bhi data mein shaamil kiya gaya hai
             allEmployees = empSnap.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
         }
 
@@ -75,7 +77,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const earnedSalary = (emp.baseSalary / 30) * presentDays;
                 const totalAdvances = advances.filter(d => d.date.getMonth() === m).reduce((sum, adv) => sum + adv.amount, 0);
                 const totalPaid = payments.filter(d => d.datePaid.getMonth() === m).reduce((sum, p) => sum + p.amountPaid, 0);
-                return { uid: emp.uid, docId: emp.docId, name: emp.name, employeeId: emp.employeeId, earnedSalary, totalAdvances, totalPaid, paymentHistory: payments.filter(d => d.datePaid.getMonth() === m) };
+                return { 
+                    uid: emp.uid, 
+                    docId: emp.docId, 
+                    name: emp.name, 
+                    employeeId: emp.employeeId,
+                    profileImageUrl: emp.profileImageUrl || null, // profileImageUrl ko add kiya gaya
+                    earnedSalary, 
+                    totalAdvances, 
+                    totalPaid, 
+                    paymentHistory: payments.filter(d => d.datePaid.getMonth() === m) 
+                };
             });
         });
 
@@ -103,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentMonthData.netAmountDue = netAmountDue;
 
                 let statusBadge;
-                if (netAmountDue <= 0.01) { // Use a small threshold for floating point issues
+                if (netAmountDue <= 0.01) {
                     statusBadge = '<span class="status-badge status-paid">PAID</span>';
                 } else if (currentMonthData.totalPaid > 0 && netAmountDue > 0) {
                     statusBadge = '<span class="status-badge status-partially-paid">PARTIALLY PAID</span>';
@@ -111,10 +123,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     statusBadge = '<span class="status-badge status-unpaid">UNPAID</span>';
                 }
 
+                // Pehle ek profile element banayein
+                const profileElement = emp.profileImageUrl 
+                    ? `<img src="${emp.profileImageUrl}" class="report-profile-pic" alt="pic">`
+                    : `<span class="report-initials-avatar">${emp.name.charAt(0).toUpperCase()}</span>`;
+
                 html += `
                     <li class="report-employee-item" data-uid="${emp.uid}">
-                        <div class="emp-info"><i class="fas fa-user-circle"></i><div><span class="emp-name">${emp.name}</span><span class="emp-id">ID: ${emp.employeeId || 'N/A'}</span></div></div>
-                        <div class="emp-salary-info"><strong class="emp-amount-due">${formatCurrency(netAmountDue)}</strong>${statusBadge}</div>
+                        <div class="emp-info">
+                            ${profileElement}
+                            <div>
+                                <span class="emp-name">${emp.name}</span>
+                                <span class="emp-id">ID: ${emp.employeeId || 'N/A'}</span>
+                            </div>
+                        </div>
+                        <div class="emp-salary-info">
+                            <strong class="emp-amount-due">${formatCurrency(netAmountDue)}</strong>
+                            ${statusBadge}
+                        </div>
                     </li>`;
             });
         }
@@ -170,11 +196,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 year: parseInt(document.getElementById('report-year-selector').value)
             });
 
-            window.hideModals(); // Pehle modal hide karein
-            window.showMessage("Success", "Payment confirmed successfully!", true); // Phir message dikhayein
+            window.hideModals();
+            window.showMessage("Success", "Payment confirmed successfully!", true); 
             
             const yearSelector = document.getElementById('report-year-selector');
             const monthSelector = document.getElementById('report-month-selector');
+            
+            // Data ko refresh karna zaroori hai
+            allEmployees = []; // Cache clear karein
             fetchReportData(yearSelector.value, monthSelector.value);
 
         } catch (error) {
