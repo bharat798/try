@@ -1,7 +1,15 @@
+
 document.addEventListener('DOMContentLoaded', () => {
     const browser = window.SimpleWebAuthnBrowser;
     let calendarDate = new Date();
     let currentUserUid = null;
+    let employeeDataCache = null; // Data cache karne ke liye
+
+    // -- NAYE ELEMENTS --
+    const profileImg = document.getElementById('sidebar-profile-img');
+    const initialsAvatar = document.getElementById('sidebar-initials-avatar');
+    const initialsText = document.getElementById('sidebar-initials-text');
+    const imageUploadInput = document.getElementById('profile-image-upload');
 
     const formatDate = (d) => d ? (d.toDate ? d.toDate() : new Date(d)).toLocaleDateString('en-GB') : 'N/A';
     const formatCurrency = (amount) => `₹${parseFloat(amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -21,68 +29,82 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.replace('index.html');
         }
     });
+    
+    // -- NAYI FUNCTIONALITY: IMAGE UPLOAD HANDLE KARNA --
+    imageUploadInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        handleProfileImageUpload(file);
+    });
 
-    function initializeResponsiveMenu() {
-        const menuBtn = document.getElementById('menu-toggle-btn');
-        const wrapper = document.querySelector('.dashboard-wrapper');
-        if (menuBtn && wrapper) {
-            menuBtn.addEventListener('click', () => {
-                wrapper.classList.toggle('sidebar-open');
+    async function handleProfileImageUpload(file) {
+        if (!currentUserUid) return;
+
+        const editIcon = document.querySelector('.edit-profile-icon i');
+        editIcon.classList.remove('fa-pencil-alt');
+        editIcon.classList.add('fa-spinner', 'fa-spin');
+
+        try {
+            // 1. Firebase Storage mein file upload karein
+            const storageRef = firebase.storage().ref(`profileImages/${currentUserUid}`);
+            const uploadTask = await storageRef.put(file);
+
+            // 2. Upload hui file ka URL lein
+            const downloadURL = await uploadTask.ref.getDownloadURL();
+
+            // 3. Firestore document mein URL update karein
+            await db.collection('employees').doc(currentUserUid).update({
+                profileImageUrl: downloadURL
             });
-            wrapper.addEventListener('click', (e) => {
-                if (e.target === wrapper && wrapper.classList.contains('sidebar-open')) {
-                    wrapper.classList.remove('sidebar-open');
-                }
-            });
+            
+            // 4. UI ko turant update karein
+            profileImg.src = downloadURL;
+            initialsAvatar.style.display = 'none';
+            profileImg.style.display = 'block';
+
+            alert('Profile picture updated successfully!');
+
+        } catch (error) {
+            console.error("Error uploading profile image:", error);
+            alert('Failed to update profile picture. Please try again.');
+        } finally {
+            editIcon.classList.add('fa-pencil-alt');
+            editIcon.classList.remove('fa-spinner', 'fa-spin');
         }
     }
 
-    function initializeNavigation() {
-        const navLinks = document.querySelectorAll('.nav-link');
-        const contentViews = document.querySelectorAll('.content-view');
-        const pageTitle = document.getElementById('page-title');
-        const viewTitles = {
-            details: 'Employee Details',
-            attendance: 'Attendance System',
-            transactions: 'Transaction History'
-        };
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const view = link.getAttribute('data-view');
-                pageTitle.textContent = viewTitles[view];
-                navLinks.forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                contentViews.forEach(v => v.classList.remove('active'));
-                document.getElementById(`${view}-view`).classList.add('active');
-                const wrapper = document.querySelector('.dashboard-wrapper');
-                if (wrapper.classList.contains('sidebar-open')) {
-                    wrapper.classList.remove('sidebar-open');
-                }
-                if (view === 'transactions' && currentUserUid) {
-                    loadTransactionHistory(currentUserUid);
-                }
-            });
-        });
-    }
 
-    const loadEmployeeData = async (user) => {
+    async function loadEmployeeData(user) {
         try {
             const employeeDoc = await db.collection('employees').doc(user.uid).get();
             if (!employeeDoc.exists) {
                 alert("Your employee data could not be found.");
                 return auth.signOut();
             }
-            const employeeData = employeeDoc.data();
-            const joiningDate = employeeData.joiningDate ? employeeData.joiningDate.toDate() : null;
+            employeeDataCache = employeeDoc.data();
+            const joiningDate = employeeDataCache.joiningDate ? employeeDataCache.joiningDate.toDate() : null;
 
-            document.getElementById('sidebar-user-name').textContent = employeeData.name;
-            const initial = employeeData.name ? employeeData.name.charAt(0).toUpperCase() : '?';
-            document.getElementById('sidebar-initials-text').textContent = initial;
-            document.getElementById('user-id-display').textContent = employeeData.employeeId || user.uid;
-            document.getElementById('user-phone-display').textContent = employeeData.phone;
-            document.getElementById('user-aadhar-display').textContent = employeeData.aadhar;
-            document.getElementById('user-base-salary-display').textContent = `₹${employeeData.baseSalary.toLocaleString()}`;
+            // -- UI UPDATE LOGIC (IMAGE YA INITIALS) --
+            if (employeeDataCache.profileImageUrl) {
+                profileImg.src = employeeDataCache.profileImageUrl;
+                initialsAvatar.style.display = 'none';
+                profileImg.style.display = 'block';
+            } else {
+                const initial = employeeDataCache.name ? employeeDataCache.name.charAt(0).toUpperCase() : '?';
+                initialsText.textContent = initial;
+                profileImg.style.display = 'none';
+                initialsAvatar.style.display = 'flex';
+            }
+
+            document.getElementById('sidebar-user-name').textContent = employeeDataCache.name;
+            document.getElementById('user-id-display').textContent = employeeDataCache.employeeId || user.uid;
+            document.getElementById('user-phone-display').textContent = employeeDataCache.phone;
+            document.getElementById('user-aadhar-display').textContent = employeeDataCache.aadhar;
+            
+            // ## BADLAV YAHAN KIYA GAYA HAI ##
+            document.getElementById('user-joining-date-display').textContent = formatDate(employeeDataCache.joiningDate);
+            
+            document.getElementById('user-base-salary-display').textContent = `₹${employeeDataCache.baseSalary.toLocaleString()}`;
             
             const today = new Date();
             const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -116,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
             paymentsSnapshot.forEach(doc => { totalPaid += doc.data().amountPaid; });
             document.getElementById('user-already-paid-display').textContent = `- ${formatCurrency(totalPaid)}`;
 
-            const earnedSalary = (employeeData.baseSalary / 30) * presentDays;
+            const earnedSalary = (employeeDataCache.baseSalary / 30) * presentDays;
             const netPayable = Math.max(0, earnedSalary - totalAdvances - totalPaid);
             document.getElementById('user-net-payable-display').textContent = formatCurrency(netPayable);
 
@@ -124,8 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const history = fullHistorySnap.docs.map(doc => ({ Timestamp: doc.data().timestamp.toDate() }));
             
             calendarDate = new Date();
-            // Joining date ko calendar function mein pass kiya gaya hai
-            const updateCalendar = () => generateCalendar(calendarDate.getFullYear(), calendarDate.getMonth(), history, 'employee', employeeData.joiningDate);
+            const updateCalendar = () => generateCalendar(calendarDate.getFullYear(), calendarDate.getMonth(), history, 'employee', employeeDataCache.joiningDate);
             document.getElementById('employee-cal-prev-month-btn').onclick = () => { calendarDate.setMonth(calendarDate.getMonth() - 1); updateCalendar(); };
             document.getElementById('employee-cal-next-month-btn').onclick = () => { calendarDate.setMonth(calendarDate.getMonth() + 1); updateCalendar(); };
             updateCalendar();
@@ -135,7 +156,51 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error loading employee data:", error);
             alert("An error occurred while loading your data.");
         }
-    };
+    }
+    
+    function initializeNavigation() {
+        const navLinks = document.querySelectorAll('.nav-link');
+        const contentViews = document.querySelectorAll('.content-view');
+        const pageTitle = document.getElementById('page-title');
+        const viewTitles = {
+            details: 'Employee Details',
+            attendance: 'Attendance System',
+            transactions: 'Transaction History'
+        };
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const view = link.getAttribute('data-view');
+                pageTitle.textContent = viewTitles[view];
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                contentViews.forEach(v => v.classList.remove('active'));
+                document.getElementById(`${view}-view`).classList.add('active');
+                const wrapper = document.querySelector('.dashboard-wrapper');
+                if (wrapper.classList.contains('sidebar-open')) {
+                    wrapper.classList.remove('sidebar-open');
+                }
+                if (view === 'transactions' && currentUserUid) {
+                    loadTransactionHistory(currentUserUid);
+                }
+            });
+        });
+    }
+
+    function initializeResponsiveMenu() {
+        const menuBtn = document.getElementById('menu-toggle-btn');
+        const wrapper = document.querySelector('.dashboard-wrapper');
+        if (menuBtn && wrapper) {
+            menuBtn.addEventListener('click', () => {
+                wrapper.classList.toggle('sidebar-open');
+            });
+            wrapper.addEventListener('click', (e) => {
+                if (e.target === wrapper && wrapper.classList.contains('sidebar-open')) {
+                    wrapper.classList.remove('sidebar-open');
+                }
+            });
+        }
+    }
             
     document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
     document.getElementById('register-passkey-btn').addEventListener('click', registerPasskey);
@@ -159,7 +224,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const today = new Date();
         today.setHours(0,0,0,0);
 
-        // Joining date ko saaf format mein convert kiya gaya
         const joiningDateObj = joiningDate ? (joiningDate.toDate ? joiningDate.toDate() : new Date(joiningDate)) : null;
         if (joiningDateObj) {
             joiningDateObj.setHours(0,0,0,0);
@@ -178,14 +242,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isPresent) {
                 dayClass = 'present-day';
             } else if (date < today && (!joiningDateObj || date >= joiningDateObj)) { 
-                // Yahan check kiya gaya hai ki din joining date ke baad ka ho
                 dayClass = 'absent-day';
                 absentCount++;
             }
             grid.innerHTML += `<div class="calendar-date ${dayClass}">${day}</div>`;
         }
         
-        // Summary mein absent count joda gaya
         summary.innerHTML = `
             <div class="summary-item"><i class="fas fa-check-circle present-icon"></i> Present: <strong>${presentCount} days</strong></div>
             <div class="summary-item"><i class="fas fa-times-circle absent-icon"></i> Absent: <strong>${absentCount} days</strong></div>
