@@ -11,11 +11,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="dashboard-body">
- <div class="dashboard-wrapper">
+
+    <div class="dashboard-wrapper">
         <aside class="sidebar">
             <div class="sidebar-profile">
-                <div class="initials-avatar">
-                    <span id="sidebar-initials-text"></span>
+                <div class="profile-picture-container">
+                    <img src="" alt="Profile Picture" id="sidebar-profile-img" class="profile-picture" style="display: none;">
+                    <div class="initials-avatar" id="sidebar-initials-avatar">
+                        <span id="sidebar-initials-text"></span>
+                    </div>
+                    <label for="profile-image-upload" class="edit-profile-icon">
+                        <i class="fas fa-pencil-alt"></i>
+                    </label>
+                    <input type="file" id="profile-image-upload" accept="image/png, image/jpeg" style="display: none;">
                 </div>
                 <h3 id="sidebar-user-name">Employee</h3>
             </div>
@@ -44,6 +52,7 @@
                         <div class="info-item"><i class="fas fa-id-badge"></i><div><span>Employee ID</span><strong id="user-id-display">N/A</strong></div></div>
                         <div class="info-item"><i class="fas fa-phone-alt"></i><div><span>Phone Number</span><strong id="user-phone-display">N/A</strong></div></div>
                         <div class="info-item"><i class="fas fa-id-card"></i><div><span>Aadhar Number</span><strong id="user-aadhar-display">N/A</strong></div></div>
+                        <div class="info-item"><i class="fas fa-calendar-day"></i><div><span>Joining Date</span><strong id="user-joining-date-display">N/A</strong></div></div>
                     </div>
                     <div class="detail-card">
                         <h4><i class="fas fa-calendar-alt"></i> This Month's Summary</h4>
@@ -128,15 +137,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@simplewebauthn/browser/dist/bundle/index.umd.min.js"></script>
     <script src="firebase-config.js"></script>
     <script src="employee.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
