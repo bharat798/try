@@ -2993,3 +2993,19 @@ body {
 }
 
 
+/* ===== Styles for Absent Days in Calendar (ADD AT END) ===== */
+
+.calendar-date.absent-day {
+    background-color: #b91c1c; /* Gehra Laal Rang */
+    color: white;
+    font-weight: 600;
+    /* Opacity hata di gayi hai */
+}
+
+.calendar-summary .absent-icon {
+    color: #b91c1c; /* Gehra Laal Rang */
+}
+
+
+
+
