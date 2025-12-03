@@ -9,18 +9,131 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    
     <style>
-        /* Additional styles for centering the login card */
+        /* Dark mode background */
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, var(--primary-color), #6D6DF6);
+            background: #121212; /* Naya dark background */
+            font-family: 'Inter', sans-serif;
         }
-        .view { max-width: 420px; }
+        .view { 
+            max-width: 400px; /* Thoda chhota card */
+            width: 90%;
+        }
+
+        /* Dark Card Style */
+        .card {
+            background-color: #1e1e1e; /* Naya dark card background */
+            border-radius: 12px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+        }
+
+        /* Card Header ko dark theme ke liye update kiya gaya */
+        .card-header .logo {
+            color: #c084fc; /* Image jaisa pink/purple color */
+            font-size: 3em; /* Icon thoda chhota */
+        }
+        .card-header h1 {
+            color: #ffffff; /* Safed text */
+        }
+        .card-header p {
+            color: #a0a0a0; /* Halka grey text */
+        }
+
+        /* Input fields ko dark theme ke liye update kiya gaya */
+        .input-group input {
+            background-color: #2a2a2a; /* Dark input background */
+            border: 1px solid #444;
+            color: #ffffff; /* Safed text type karne ke liye */
+            border-radius: 8px;
+            padding: 14px 12px;
+        }
+        .input-group input:focus {
+            border-color: #c084fc; /* Focus par purple border */
+            box-shadow: none;
+        }
+        
+        /* Floating label ko dark theme ke liye update kiya gaya */
+        .input-group label {
+            color: #a0a0a0; /* Halka grey label text */
+            background-color: #1e1e1e; /* Floating label ke peeche card ka color */
+            padding: 0 6px;
+        }
+        .input-group input:focus + label,
+        .input-group input:not(:placeholder-shown) + label,
+        .input-group input[type="date"] + label {
+            color: #c084fc; /* Focus par purple label */
+            top: -10px;
+            font-size: 12px;
+        }
+
+        /* Login Button (Gradient) */
+        #login-btn {
+            background: linear-gradient(90deg, #FF6B6B 0%, #4C6FFF 100%); /* Image jaisa gradient */
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            border-radius: 8px; /* Rounded corners */
+        }
+        #login-btn:hover {
+            opacity: 0.9;
+            box-shadow: 0 6px 20px rgba(76, 111, 255, 0.4);
+        }
+        
+        /* "Setup Admin" link ko naya button jaisa look diya gaya */
+        #show-admin-reg-link {
+            display: block;
+            text-align: center;
+            padding: 12px;
+            border: 1px solid #444;
+            color: #a0a0a0;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin-top: 20px; /* Thodi zyada jagah */
+        }
+        #show-admin-reg-link:hover {
+            background-color: #2a2a2a;
+            color: #ffffff;
+            border-color: #555;
+        }
+        
+        /* Admin registration view ko bhi dark theme diya gaya */
+        #admin-reg-view .card-header h1, 
+        #admin-reg-view .card-header p {
+             color: #ffffff;
+        }
+        #admin-reg-view .card-body p {
+            color: #a0a0a0;
+        }
+        #admin-reg-btn {
+            background: linear-gradient(90deg, #FF6B6B 0%, #4C6FFF 100%);
+            color: white;
+            border: none;
+            width: 100%;
+            border-radius: 8px;
+            padding: 12px 25px;
+        }
+        #show-admin-login-link {
+            color: #a0a0a0;
+            text-decoration: none;
+        }
+        #show-admin-login-link:hover {
+            color: #ffffff;
+        }
+
     </style>
-</head>
+    </head>
 <body>
 
     <main id="login-view" class="view active">
@@ -40,9 +153,9 @@
                         <input type="password" id="login-password" required placeholder=" ">
                         <label for="login-password">Password</label>
                     </div>
-                    <button id="login-btn" class="btn btn-primary" style="width:100%"><i class="fas fa-sign-in-alt"></i> Login</button>
+                    <button id="login-btn" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
                     <p style="text-align: center; margin-top: 1rem;">
-                        <a href="#" id="show-admin-reg-link">Setup First Admin Account</a>
+                        <!-- <a href="#" id="show-admin-reg-link">Setup First Admin Account</a> -->
                     </p>
                 </div>
             </div>
@@ -144,3 +257,7 @@
     </script>
 </body>
 </html>
+
+
+
+
