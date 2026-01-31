@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
     
     <style>
         /* Dark mode background */
@@ -17,126 +16,106 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: #121212; /* Naya dark background */
+            background: #121212;
             font-family: 'Inter', sans-serif;
+            margin: 0;
         }
         .view { 
-            max-width: 400px; /* Thoda chhota card */
+            max-width: 400px;
             width: 90%;
         }
 
         /* Dark Card Style */
         .card {
-            background-color: #1e1e1e; /* Naya dark card background */
+            background-color: #1e1e1e;
             border-radius: 12px;
             padding: 40px 30px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             border: 1px solid #333;
         }
 
-        /* Card Header ko dark theme ke liye update kiya gaya */
+        .card-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
         .card-header .logo {
-            color: #c084fc; /* Image jaisa pink/purple color */
-            font-size: 3em; /* Icon thoda chhota */
+            color: #c084fc;
+            font-size: 3em;
+            margin-bottom: 10px;
         }
         .card-header h1 {
-            color: #ffffff; /* Safed text */
+            color: #ffffff;
+            margin: 10px 0 5px 0;
+            font-size: 24px;
         }
         .card-header p {
-            color: #a0a0a0; /* Halka grey text */
+            color: #a0a0a0;
+            margin: 0;
         }
 
-        /* Input fields ko dark theme ke liye update kiya gaya */
+        /* Input fields */
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
         .input-group input {
-            background-color: #2a2a2a; /* Dark input background */
+            width: 100%;
+            background-color: #2a2a2a;
             border: 1px solid #444;
-            color: #ffffff; /* Safed text type karne ke liye */
+            color: #ffffff;
             border-radius: 8px;
             padding: 14px 12px;
+            box-sizing: border-box;
+            outline: none;
         }
         .input-group input:focus {
-            border-color: #c084fc; /* Focus par purple border */
-            box-shadow: none;
+            border-color: #c084fc;
         }
         
-        /* Floating label ko dark theme ke liye update kiya gaya */
         .input-group label {
-            color: #a0a0a0; /* Halka grey label text */
-            background-color: #1e1e1e; /* Floating label ke peeche card ka color */
-            padding: 0 6px;
-        }
-        .input-group input:focus + label,
-        .input-group input:not(:placeholder-shown) + label,
-        .input-group input[type="date"] + label {
-            color: #c084fc; /* Focus par purple label */
-            top: -10px;
-            font-size: 12px;
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0a0a0;
+            transition: all 0.2s ease;
+            pointer-events: none;
+            background-color: #1e1e1e;
+            padding: 0 5px;
         }
 
-        /* Login Button (Gradient) */
+        .input-group input:focus + label,
+        .input-group input:not(:placeholder-shown) + label {
+            top: 0;
+            font-size: 12px;
+            color: #c084fc;
+        }
+
+        /* Login Button */
         #login-btn {
-            background: linear-gradient(90deg, #FF6B6B 0%, #4C6FFF 100%); /* Image jaisa gradient */
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 12px 25px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-            border-radius: 8px; /* Rounded corners */
-        }
-        #login-btn:hover {
-            opacity: 0.9;
-            box-shadow: 0 6px 20px rgba(76, 111, 255, 0.4);
-        }
-        
-        /* "Setup Admin" link ko naya button jaisa look diya gaya */
-        #show-admin-reg-link {
-            display: block;
-            text-align: center;
-            padding: 12px;
-            border: 1px solid #444;
-            color: #a0a0a0;
-            border-radius: 8px;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            margin-top: 20px; /* Thodi zyada jagah */
-        }
-        #show-admin-reg-link:hover {
-            background-color: #2a2a2a;
-            color: #ffffff;
-            border-color: #555;
-        }
-        
-        /* Admin registration view ko bhi dark theme diya gaya */
-        #admin-reg-view .card-header h1, 
-        #admin-reg-view .card-header p {
-             color: #ffffff;
-        }
-        #admin-reg-view .card-body p {
-            color: #a0a0a0;
-        }
-        #admin-reg-btn {
             background: linear-gradient(90deg, #FF6B6B 0%, #4C6FFF 100%);
             color: white;
             border: none;
             width: 100%;
+            padding: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
             border-radius: 8px;
-            padding: 12px 25px;
+            font-size: 16px;
         }
-        #show-admin-login-link {
-            color: #a0a0a0;
-            text-decoration: none;
-        }
-        #show-admin-login-link:hover {
-            color: #ffffff;
+        #login-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
         }
 
     </style>
-    </head>
+</head>
 <body>
 
-    <main id="login-view" class="view active">
+    <main id="login-view" class="view">
         <div class="card">
             <div id="login-form-view">
                 <div class="card-header">
@@ -153,29 +132,7 @@
                         <input type="password" id="login-password" required placeholder=" ">
                         <label for="login-password">Password</label>
                     </div>
-                    <button id="login-btn" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
-                    <!-- <p style="text-align: center; margin-top: 1rem;">
-                        <a href="#" id="show-admin-reg-link">Setup First Admin Account</a> 
-                    </p> -->
-                </div>
-            </div>
-
-            <div id="admin-reg-view" style="display: none;">
-                <div class="card-header">
-                    <i class="fas fa-user-shield logo"></i>
-                    <h1>Admin Setup</h1>
-                    <p>Create the primary admin account.</p>
-                </div>
-                 <div class="card-body">
-                    <p style="text-align: center; color: var(--light-text-color);">This is a one-time setup for <strong>admin@company.com</strong>.</p>
-                    <div class="input-group">
-                        <input type="password" id="admin-reg-password" required placeholder=" ">
-                        <label for="admin-reg-password">Choose a Secure Password</label>
-                    </div>
-                    <button id="admin-reg-btn" class="btn btn-primary" style="width:100%">Create Admin</button>
-                    <p style="text-align: center; margin-top: 1rem;">
-                        <a href="#" id="show-admin-login-link">Back to Login</a>
-                    </p>
+                    <button id="login-btn"><i class="fas fa-sign-in-alt"></i> Login</button>
                 </div>
             </div>
         </div>
@@ -186,64 +143,32 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
     <script src="firebase-config.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const auth = firebase.auth();
-            const db = firebase.firestore();
             const ADMIN_EMAIL = "admin@company.com";
-
-            const loginView = document.getElementById('login-form-view');
-            const adminRegView = document.getElementById('admin-reg-view');
-            const showAdminRegLink = document.getElementById('show-admin-reg-link');
-            const showAdminLoginLink = document.getElementById('show-admin-login-link');
-
-            showAdminRegLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                loginView.style.display = 'none';
-                adminRegView.style.display = 'block';
-            });
-
-            showAdminLoginLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                adminRegView.style.display = 'none';
-                loginView.style.display = 'block';
-            });
-
-            // One-time Admin Registration
-            document.getElementById('admin-reg-btn').addEventListener('click', async () => {
-                const password = document.getElementById('admin-reg-password').value;
-                if (password.length < 6) {
-                    return alert('Password should be at least 6 characters.');
-                }
-                try {
-                    const userCredential = await auth.createUserWithEmailAndPassword(ADMIN_EMAIL, password);
-                    await db.collection('users').doc(userCredential.user.uid).set({
-                        name: 'Admin',
-                        email: ADMIN_EMAIL
-                    });
-                    alert('Admin account created! You can now log in.');
-                    showAdminLoginLink.click();
-                } catch (error) {
-                    alert('Error: ' + error.message);
-                }
-            });
 
             // Login Logic
             document.getElementById('login-btn').addEventListener('click', () => {
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
+
+                if(!email || !password) {
+                    return alert("Please fill in all fields.");
+                }
+
                 auth.signInWithEmailAndPassword(email, password)
                     .then(userCredential => {
-                        if (userCredential.user.email === ADMIN_EMAIL) {
-                            window.location.href = 'admin.html';
-                        } else {
-                            window.location.href = 'employee.html';
-                        }
+                        // Success handle by onAuthStateChanged
+                        console.log("Logged in successfully");
                     })
-                    .catch(error => alert('Login Failed: ' + error.message));
+                    .catch(error => {
+                        alert('Login Failed: ' + error.message);
+                    });
             });
 
-            // Redirect if already logged in
+            // Auto-Redirect based on user role
             auth.onAuthStateChanged(user => {
                 if (user) {
                     if (user.email === ADMIN_EMAIL) {
@@ -257,9 +182,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
